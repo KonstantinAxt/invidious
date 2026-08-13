@@ -29,15 +29,19 @@ function setTheme(theme) {
         document.body.className = 'no-theme';
     }
 
-    // Beer CSS (invidious-theme) keys its dynamically-computed color roles off
-    // its own bare light/dark body class, injected separately by
-    // vendor/beer-bootstrap.js. Add it alongside our own class rather than
-    // calling Beer's own ui("mode", ...), which would independently overwrite
-    // body.className and fight with the assignments above.
+    // Beer CSS (invidious-theme): add its own bare light/dark class alongside
+    // ours (rather than calling Beer's own ui("mode", ...), which would
+    // independently overwrite body.className and fight with the assignments
+    // above), then re-run its color engine so the inline --primary etc.
+    // values it writes on body.style actually match the class we just set —
+    // ui("theme", ...) reads the current class to decide which variant to
+    // apply, so this needs to re-run on every theme change, not just once on
+    // page load.
     if (window.ui) {
         var osIsDark = matchMedia('(prefers-color-scheme: dark)').matches;
         var beerMode = theme === THEME_DARK ? 'dark' : theme === THEME_LIGHT ? 'light' : (osIsDark ? 'dark' : 'light');
         document.body.classList.add(beerMode);
+        ui('theme', '#2596be');
     }
 }
 
