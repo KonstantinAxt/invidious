@@ -6,6 +6,21 @@ const STORAGE_KEY_THEME = 'dark_mode';
 const THEME_DARK = 'dark';
 const THEME_LIGHT = 'light';
 
+// Beer CSS's ui("theme", ...) is a reliable no-op if called before the page
+// has fully loaded (verified live: identical call works every time after
+// the `load` event, never during/right after DOMContentLoaded, even
+// deferred by a macrotask) — likely gated on document.readyState internally.
+// applyBeerTheme() below waits for that instead of guessing a delay.
+var pageFullyLoaded = document.readyState === 'complete';
+addEventListener('load', function () { pageFullyLoaded = true; });
+function applyBeerTheme() {
+    if (pageFullyLoaded) {
+        ui('theme', '#2596be');
+    } else {
+        addEventListener('load', function () { ui('theme', '#2596be'); }, { once: true });
+    }
+}
+
 // TODO: theme state controlled by system
 toggle_theme.addEventListener('click', function () {
     const isDarkTheme = helpers.storage.get(STORAGE_KEY_THEME) === THEME_DARK;
@@ -41,16 +56,7 @@ function setTheme(theme) {
         var osIsDark = matchMedia('(prefers-color-scheme: dark)').matches;
         var beerMode = theme === THEME_DARK ? 'dark' : theme === THEME_LIGHT ? 'light' : (osIsDark ? 'dark' : 'light');
         document.body.classList.add(beerMode);
-        // Deferred one macrotask: calling this synchronously during the
-        // initial DOMContentLoaded dispatch is a reliable no-op (verified
-        // live) — beer.min.js likely runs its own internal setup from a
-        // DOMContentLoaded listener registered after this one, and calling
-        // ui("theme", ...) before that completes silently does nothing.
-        // setTimeout(0) runs after the current dispatch (and everything
-        // else's DOMContentLoaded listeners) finishes.
-        setTimeout(function () {
-            ui('theme', '#2596be');
-        }, 0);
+        applyBeerTheme();
     }
 }
 
