@@ -1,0 +1,79 @@
+name: Watch invidious releases
+
+on:
+  schedule:
+    - cron: "23 7 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check upstream release state
+        id: state
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          latest="$(gh api repos/iv-org/invidious/releases/latest --jq '.tag_name + " (" + .published_at + ")"')"
+          deployed_tag="$(git describe --tags --exact-match deployed 2>/dev/null || echo "unknown")"
+
+          state_file=".github/upstream-watch-state.txt"
+          new_state="latest_upstream_release=${latest}
+          deployed_branch_tag=${deployed_tag}"
+
+          old_state=""
+          if [ -f "$state_file" ]; then old_state="$(cat "$state_file")"; fi
+
+          printf '%s\n' "$new_state" > "$state_file"
+
+          if [ "$old_state" != "$new_state" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          {
+            echo "body<<EOF"
+            printf '%s\n' "$new_state"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Commit updated state
+        if: steps.state.outputs.changed == 'true'
+        run: |
+          git config user.name "upstream-watch-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add .github/upstream-watch-state.txt
+          git commit -m "chore: update upstream watch state"
+          git push
+
+      - name: Open or update tracking issue
+        if: steps.state.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BODY: ${{ steps.state.outputs.body }}
+        run: |
+          title="Upstream watch: invidious release status changed"
+          full_body="Automated check detected a change upstream.
+
+          \`\`\`
+          ${BODY}
+          \`\`\`
+
+          - [iv-org/invidious releases](https://github.com/iv-org/invidious/releases)
+          "
+
+          existing="$(gh issue list --search "in:title \"${title}\"" --state open --json number --jq '.[0].number')"
+          if [ -n "$existing" ] && [ "$existing" != "null" ]; then
+            gh issue comment "$existing" --body "$full_body"
+          else
+            gh issue create --title "$title" --body "$full_body"
+          fi
