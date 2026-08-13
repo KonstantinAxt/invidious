@@ -56,14 +56,14 @@ module Invidious::Frontend::SearchFilters
     {% for value in Invidious::Search::Filters::Date.constants %}
       {% date = value.underscore %}
 
-      str << "\t\t\t\t\t\t<div>"
+      str << "\t\t\t\t\t\t<label class='radio'>"
       str << "<input type='radio' name='date' id='filter-date-{{date}}' value='{{date}}'"
       str << " checked" if value.{{date}}?
       str << '>'
 
-      str << "<label for='filter-date-{{date}}'>"
+      str << "<span>"
       str << I18n.translate(locale, "search_filters_date_option_{{date}}")
-      str << "</label></div>\n"
+      str << "</span></label>\n"
     {% end %}
   end
 
@@ -72,14 +72,14 @@ module Invidious::Frontend::SearchFilters
     {% for value in Invidious::Search::Filters::Type.constants %}
       {% type = value.underscore %}
 
-      str << "\t\t\t\t\t\t<div>"
+      str << "\t\t\t\t\t\t<label class='radio'>"
       str << "<input type='radio' name='type' id='filter-type-{{type}}' value='{{type}}'"
       str << " checked" if value.{{type}}?
       str << '>'
 
-      str << "<label for='filter-type-{{type}}'>"
+      str << "<span>"
       str << I18n.translate(locale, "search_filters_type_option_{{type}}")
-      str << "</label></div>\n"
+      str << "</span></label>\n"
     {% end %}
   end
 
@@ -88,14 +88,14 @@ module Invidious::Frontend::SearchFilters
     {% for value in Invidious::Search::Filters::Duration.constants %}
       {% duration = value.underscore %}
 
-      str << "\t\t\t\t\t\t<div>"
+      str << "\t\t\t\t\t\t<label class='radio'>"
       str << "<input type='radio' name='duration' id='filter-duration-{{duration}}' value='{{duration}}'"
       str << " checked" if value.{{duration}}?
       str << '>'
 
-      str << "<label for='filter-duration-{{duration}}'>"
+      str << "<span>"
       str << I18n.translate(locale, "search_filters_duration_option_{{duration}}")
-      str << "</label></div>\n"
+      str << "</span></label>\n"
     {% end %}
   end
 
@@ -105,14 +105,14 @@ module Invidious::Frontend::SearchFilters
       {% if value.stringify != "All" && value.stringify != "None" %}
         {% feature = value.underscore %}
 
-        str << "\t\t\t\t\t\t<div>"
+        str << "\t\t\t\t\t\t<label class='checkbox'>"
         str << "<input type='checkbox' name='features' id='filter-feature-{{feature}}' value='{{feature}}'"
         str << " checked" if value.{{feature}}?
         str << '>'
 
-        str << "<label for='filter-feature-{{feature}}'>"
+        str << "<span>"
         str << I18n.translate(locale, "search_filters_features_option_{{feature}}")
-        str << "</label></div>\n"
+        str << "</span></label>\n"
       {% end %}
     {% end %}
   end
@@ -122,14 +122,14 @@ module Invidious::Frontend::SearchFilters
     {% for value in Invidious::Search::Filters::Sort.constants %}
       {% sort = value.underscore %}
 
-      str << "\t\t\t\t\t\t<div>"
+      str << "\t\t\t\t\t\t<label class='radio'>"
       str << "<input type='radio' name='sort' id='filter-sort-{{sort}}' value='{{sort}}'"
       str << " checked" if value.{{sort}}?
       str << '>'
 
-      str << "<label for='filter-sort-{{sort}}'>"
+      str << "<span>"
       str << I18n.translate(locale, "search_filters_sort_option_{{sort}}")
-      str << "</label></div>\n"
+      str << "</span></label>\n"
     {% end %}
   end
 end

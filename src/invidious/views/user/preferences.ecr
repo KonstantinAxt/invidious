@@ -8,38 +8,52 @@
             <legend><%= I18n.translate(locale, "preferences_category_player") %></legend>
 
             <div class="pure-control-group">
-                <label for="video_loop"><%= I18n.translate(locale, "preferences_video_loop_label") %></label>
-                <input name="video_loop" id="video_loop" type="checkbox" <% if preferences.video_loop %>checked<% end %>>
+                <label class="checkbox">
+                    <input name="video_loop" id="video_loop" type="checkbox" <% if preferences.video_loop %>checked<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_video_loop_label") %></span>
+                </label>
             </div>
 
             <div class="pure-control-group">
-                <label for="preload"><%= I18n.translate(locale, "preferences_preload_label") %></label>
-                <input name="preload" id="preload" type="checkbox" <% if preferences.preload %>checked<% end %>>
+                <label class="checkbox">
+                    <input name="preload" id="preload" type="checkbox" <% if preferences.preload %>checked<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_preload_label") %></span>
+                </label>
             </div>
 
             <div class="pure-control-group">
-                <label for="autoplay"><%= I18n.translate(locale, "preferences_autoplay_label") %></label>
-                <input name="autoplay" id="autoplay" type="checkbox" <% if preferences.autoplay %>checked<% end %>>
+                <label class="checkbox">
+                    <input name="autoplay" id="autoplay" type="checkbox" <% if preferences.autoplay %>checked<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_autoplay_label") %></span>
+                </label>
             </div>
 
             <div class="pure-control-group">
-                <label for="continue"><%= I18n.translate(locale, "preferences_continue_label") %></label>
-                <input name="continue" id="continue" type="checkbox" <% if preferences.continue %>checked<% end %>>
+                <label class="checkbox">
+                    <input name="continue" id="continue" type="checkbox" <% if preferences.continue %>checked<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_continue_label") %></span>
+                </label>
             </div>
 
             <div class="pure-control-group">
-                <label for="continue_autoplay"><%= I18n.translate(locale, "preferences_continue_autoplay_label") %></label>
-                <input name="continue_autoplay" id="continue_autoplay" type="checkbox" <% if preferences.continue_autoplay %>checked<% end %>>
+                <label class="checkbox">
+                    <input name="continue_autoplay" id="continue_autoplay" type="checkbox" <% if preferences.continue_autoplay %>checked<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_continue_autoplay_label") %></span>
+                </label>
             </div>
 
             <div class="pure-control-group">
-                <label for="local"><%= I18n.translate(locale, "preferences_local_label") %></label>
-                <input name="local" id="local" type="checkbox" <% if preferences.local && !CONFIG.disabled?("local") %>checked<% end %> <% if CONFIG.disabled?("local") %>disabled<% end %>>
+                <label class="checkbox">
+                    <input name="local" id="local" type="checkbox" <% if preferences.local && !CONFIG.disabled?("local") %>checked<% end %> <% if CONFIG.disabled?("local") %>disabled<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_local_label") %></span>
+                </label>
             </div>
 
             <div class="pure-control-group">
-                <label for="listen"><%= I18n.translate(locale, "preferences_listen_label") %></label>
-                <input name="listen" id="listen" type="checkbox" <% if preferences.listen %>checked<% end %>>
+                <label class="checkbox">
+                    <input name="listen" id="listen" type="checkbox" <% if preferences.listen %>checked<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_listen_label") %></span>
+                </label>
             </div>
 
             <div class="pure-control-group">
@@ -102,28 +116,38 @@
             </div>
 
             <div class="pure-control-group">
-                <label for="related_videos"><%= I18n.translate(locale, "preferences_related_videos_label") %></label>
-                <input name="related_videos" id="related_videos" type="checkbox" <% if preferences.related_videos %>checked<% end %>>
+                <label class="checkbox">
+                    <input name="related_videos" id="related_videos" type="checkbox" <% if preferences.related_videos %>checked<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_related_videos_label") %></span>
+                </label>
             </div>
 
             <div class="pure-control-group">
-                <label for="annotations"><%= I18n.translate(locale, "preferences_annotations_label") %></label>
-                <input name="annotations" id="annotations" type="checkbox" <% if preferences.annotations %>checked<% end %>>
+                <label class="checkbox">
+                    <input name="annotations" id="annotations" type="checkbox" <% if preferences.annotations %>checked<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_annotations_label") %></span>
+                </label>
             </div>
 
             <div class="pure-control-group">
-                <label for="extend_desc"><%= I18n.translate(locale, "preferences_extend_desc_label") %></label>
-                <input name="extend_desc" id="extend_desc" type="checkbox" <% if preferences.extend_desc %>checked<% end %>>
+                <label class="checkbox">
+                    <input name="extend_desc" id="extend_desc" type="checkbox" <% if preferences.extend_desc %>checked<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_extend_desc_label") %></span>
+                </label>
             </div>
 
             <div class="pure-control-group">
-                <label for="vr_mode"><%= I18n.translate(locale, "preferences_vr_mode_label") %></label>
-                <input name="vr_mode" id="vr_mode" type="checkbox" <% if preferences.vr_mode %>checked<% end %>>
+                <label class="checkbox">
+                    <input name="vr_mode" id="vr_mode" type="checkbox" <% if preferences.vr_mode %>checked<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_vr_mode_label") %></span>
+                </label>
             </div>
 
             <div class="pure-control-group">
-                <label for="save_player_pos"><%= I18n.translate(locale, "preferences_save_player_pos_label") %></label>
-                <input name="save_player_pos" id="save_player_pos" type="checkbox" <% if preferences.save_player_pos %>checked<% end %>>
+                <label class="checkbox">
+                    <input name="save_player_pos" id="save_player_pos" type="checkbox" <% if preferences.save_player_pos %>checked<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_save_player_pos_label") %></span>
+                </label>
             </div>
 
             <% if user = env.get?("user").try &.as(User) %>
@@ -178,8 +202,10 @@
             </div>
 
             <div class="pure-control-group">
-                <label for="thin_mode"><%= I18n.translate(locale, "preferences_thin_mode_label") %></label>
-                <input name="thin_mode" id="thin_mode" type="checkbox" <% if preferences.thin_mode %>checked<% end %>>
+                <label class="checkbox">
+                    <input name="thin_mode" id="thin_mode" type="checkbox" <% if preferences.thin_mode %>checked<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_thin_mode_label") %></span>
+                </label>
             </div>
 
             <% if env.get?("user") %>
@@ -209,21 +235,27 @@
             </div>
             <% if env.get? "user" %>
                 <div class="pure-control-group">
-                    <label for="show_nick"><%= I18n.translate(locale, "preferences_show_nick_label") %></label>
-                    <input name="show_nick" id="show_nick" type="checkbox" <% if preferences.show_nick %>checked<% end %>>
+                    <label class="checkbox">
+                        <input name="show_nick" id="show_nick" type="checkbox" <% if preferences.show_nick %>checked<% end %>>
+                        <span><%= I18n.translate(locale, "preferences_show_nick_label") %></span>
+                    </label>
                 </div>
             <% end %>
 
             <legend><%= I18n.translate(locale, "preferences_category_misc") %></legend>
 
             <div class="pure-control-group">
-                <label for="automatic_instance_redirect"><%= I18n.translate(locale, "preferences_automatic_instance_redirect_label") %></label>
-                <input name="automatic_instance_redirect" id="automatic_instance_redirect" type="checkbox" <% if preferences.automatic_instance_redirect %>checked<% end %>>
+                <label class="checkbox">
+                    <input name="automatic_instance_redirect" id="automatic_instance_redirect" type="checkbox" <% if preferences.automatic_instance_redirect %>checked<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_automatic_instance_redirect_label") %></span>
+                </label>
             </div>
 
             <div class="pure-control-group">
-                <label for="search_privacy"><%= I18n.translate(locale, "preferences_search_privacy_label") %></label>
-                <input name="search_privacy" id="search_privacy" type="checkbox" <% if preferences.search_privacy %>checked<% end %>>
+                <label class="checkbox">
+                    <input name="search_privacy" id="search_privacy" type="checkbox" <% if preferences.search_privacy %>checked<% end %>>
+                    <span><%= I18n.translate(locale, "preferences_search_privacy_label") %></span>
+                </label>
                 <span class="preference-description"><%= I18n.translate(locale, "preferences_search_privacy_description") %></span>
             </div>
 
@@ -231,13 +263,17 @@
                 <legend><%= I18n.translate(locale, "preferences_category_subscription") %></legend>
 
                 <div class="pure-control-group">
-                    <label for="watch_history"><%= I18n.translate(locale, "preferences_watch_history_label") %></label>
-                    <input name="watch_history" id="watch_history" type="checkbox" <% if preferences.watch_history %>checked<% end %>>
+                    <label class="checkbox">
+                        <input name="watch_history" id="watch_history" type="checkbox" <% if preferences.watch_history %>checked<% end %>>
+                        <span><%= I18n.translate(locale, "preferences_watch_history_label") %></span>
+                    </label>
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="annotations_subscribed"><%= I18n.translate(locale, "preferences_annotations_subscribed_label") %></label>
-                    <input name="annotations_subscribed" id="annotations_subscribed" type="checkbox" <% if preferences.annotations_subscribed %>checked<% end %>>
+                    <label class="checkbox">
+                        <input name="annotations_subscribed" id="annotations_subscribed" type="checkbox" <% if preferences.annotations_subscribed %>checked<% end %>>
+                        <span><%= I18n.translate(locale, "preferences_annotations_subscribed_label") %></span>
+                    </label>
                 </div>
 
                 <div class="pure-control-group">
@@ -255,23 +291,29 @@
                 </div>
 
                 <div class="pure-control-group">
-                    <% if preferences.unseen_only %>
-                        <label for="latest_only"><%= I18n.translate(locale, "Only show latest unwatched video from channel: ") %></label>
-                    <% else %>
-                        <label for="latest_only"><%= I18n.translate(locale, "Only show latest video from channel: ") %></label>
-                    <% end %>
-                    <input name="latest_only" id="latest_only" type="checkbox" <% if preferences.latest_only %>checked<% end %>>
+                    <label class="checkbox">
+                        <input name="latest_only" id="latest_only" type="checkbox" <% if preferences.latest_only %>checked<% end %>>
+                        <% if preferences.unseen_only %>
+                            <span><%= I18n.translate(locale, "Only show latest unwatched video from channel: ") %></span>
+                        <% else %>
+                            <span><%= I18n.translate(locale, "Only show latest video from channel: ") %></span>
+                        <% end %>
+                    </label>
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="unseen_only"><%= I18n.translate(locale, "preferences_unseen_only_label") %></label>
-                    <input name="unseen_only" id="unseen_only" type="checkbox" <% if preferences.unseen_only %>checked<% end %>>
+                    <label class="checkbox">
+                        <input name="unseen_only" id="unseen_only" type="checkbox" <% if preferences.unseen_only %>checked<% end %>>
+                        <span><%= I18n.translate(locale, "preferences_unseen_only_label") %></span>
+                    </label>
                 </div>
 
                 <% if CONFIG.enable_user_notifications %>
                 <div class="pure-control-group">
-                    <label for="notifications_only"><%= I18n.translate(locale, "preferences_notifications_only_label") %></label>
-                    <input name="notifications_only" id="notifications_only" type="checkbox" <% if preferences.notifications_only %>checked<% end %>>
+                    <label class="checkbox">
+                        <input name="notifications_only" id="notifications_only" type="checkbox" <% if preferences.notifications_only %>checked<% end %>>
+                        <span><%= I18n.translate(locale, "preferences_notifications_only_label") %></span>
+                    </label>
                 </div>
 
                 <% # Web notifications are only supported over HTTPS %>
@@ -307,29 +349,39 @@
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="popular_enabled"><%= I18n.translate(locale, "Popular enabled: ") %></label>
-                    <input name="popular_enabled" id="popular_enabled" type="checkbox" <% if CONFIG.popular_enabled %>checked<% end %>>
+                    <label class="checkbox">
+                        <input name="popular_enabled" id="popular_enabled" type="checkbox" <% if CONFIG.popular_enabled %>checked<% end %>>
+                        <span><%= I18n.translate(locale, "Popular enabled: ") %></span>
+                    </label>
                 </div>
 
 
                 <div class="pure-control-group">
-                    <label for="captcha_enabled"><%= I18n.translate(locale, "CAPTCHA enabled: ") %></label>
-                    <input name="captcha_enabled" id="captcha_enabled" type="checkbox" <% if CONFIG.captcha_enabled %>checked<% end %>>
+                    <label class="checkbox">
+                        <input name="captcha_enabled" id="captcha_enabled" type="checkbox" <% if CONFIG.captcha_enabled %>checked<% end %>>
+                        <span><%= I18n.translate(locale, "CAPTCHA enabled: ") %></span>
+                    </label>
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="login_enabled"><%= I18n.translate(locale, "Login enabled: ") %></label>
-                    <input name="login_enabled" id="login_enabled" type="checkbox" <% if CONFIG.login_enabled %>checked<% end %>>
+                    <label class="checkbox">
+                        <input name="login_enabled" id="login_enabled" type="checkbox" <% if CONFIG.login_enabled %>checked<% end %>>
+                        <span><%= I18n.translate(locale, "Login enabled: ") %></span>
+                    </label>
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="registration_enabled"><%= I18n.translate(locale, "Registration enabled: ") %></label>
-                    <input name="registration_enabled" id="registration_enabled" type="checkbox" <% if CONFIG.registration_enabled %>checked<% end %>>
+                    <label class="checkbox">
+                        <input name="registration_enabled" id="registration_enabled" type="checkbox" <% if CONFIG.registration_enabled %>checked<% end %>>
+                        <span><%= I18n.translate(locale, "Registration enabled: ") %></span>
+                    </label>
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="statistics_enabled"><%= I18n.translate(locale, "Report statistics: ") %></label>
-                    <input name="statistics_enabled" id="statistics_enabled" type="checkbox" <% if CONFIG.statistics_enabled %>checked<% end %>>
+                    <label class="checkbox">
+                        <input name="statistics_enabled" id="statistics_enabled" type="checkbox" <% if CONFIG.statistics_enabled %>checked<% end %>>
+                        <span><%= I18n.translate(locale, "Report statistics: ") %></span>
+                    </label>
                 </div>
 
                 <div class="pure-control-group">
