@@ -28,6 +28,17 @@ function setTheme(theme) {
     } else {
         document.body.className = 'no-theme';
     }
+
+    // Beer CSS (invidious-theme) keys its dynamically-computed color roles off
+    // its own bare light/dark body class, injected separately by
+    // vendor/beer-bootstrap.js. Add it alongside our own class rather than
+    // calling Beer's own ui("mode", ...), which would independently overwrite
+    // body.className and fight with the assignments above.
+    if (window.ui) {
+        var osIsDark = matchMedia('(prefers-color-scheme: dark)').matches;
+        var beerMode = theme === THEME_DARK ? 'dark' : theme === THEME_LIGHT ? 'light' : (osIsDark ? 'dark' : 'light');
+        document.body.classList.add(beerMode);
+    }
 }
 
 // Handles theme change event caused by other tab
@@ -36,11 +47,19 @@ addEventListener('storage', function (e) {
         setTheme(helpers.storage.get(STORAGE_KEY_THEME));
 });
 
-// Set theme from preferences on page load
+// Keeps Beer CSS's bare light/dark class in sync if the OS scheme changes
+// while the user is in "no-theme" (auto/follow-OS) mode.
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+    if (document.body.classList.contains('no-theme')) setTheme('');
+});
+
+// Set theme from preferences on page load.
+// Always calls setTheme, even when prefTheme is blank (no-theme/auto) —
+// body.className is already correct from SSR either way, but this is also
+// the only place that adds Beer CSS's bare light/dark class on a fresh
+// load, which has no SSR equivalent.
 addEventListener('DOMContentLoaded', function () {
     const prefTheme = document.getElementById('dark_mode_pref').textContent;
-    if (prefTheme) {
-        setTheme(prefTheme);
-        helpers.storage.set(STORAGE_KEY_THEME, prefTheme);
-    }
+    setTheme(prefTheme);
+    if (prefTheme) helpers.storage.set(STORAGE_KEY_THEME, prefTheme);
 });
