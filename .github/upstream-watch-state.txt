@@ -1,0 +1,2 @@
+latest_upstream_release=v2.20260804.1 (2026-08-05T01:04:46Z)
+deployed_branch_tag=unknown
