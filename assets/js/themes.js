@@ -6,11 +6,8 @@ const STORAGE_KEY_THEME = 'dark_mode';
 const THEME_DARK = 'dark';
 const THEME_LIGHT = 'light';
 
-// Beer CSS's ui("theme", ...) is a reliable no-op if called before the page
-// has fully loaded (verified live: identical call works every time after
-// the `load` event, never during/right after DOMContentLoaded, even
-// deferred by a macrotask) — likely gated on document.readyState internally.
-// applyBeerTheme() below waits for that instead of guessing a delay.
+// Beer CSS's ui("theme", ...) needs the page fully loaded to take effect —
+// wait for that instead of assuming DOMContentLoaded is enough.
 var pageFullyLoaded = document.readyState === 'complete';
 addEventListener('load', function () { pageFullyLoaded = true; });
 function applyBeerTheme() {
