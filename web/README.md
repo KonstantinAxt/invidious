@@ -4,7 +4,7 @@ A new UI for Invidious built as a pure client of the existing Crystal backend's
 public JSON API (`/api/v1/*`). Crystal is **untouched** — Astro is a separate,
 self-contained project in this directory, added as a new consumer of the API.
 
-## Architecture (don't re-litigate)
+## Architecture
 
 - **BFF / SSR**: Astro runs in SSR mode (`output: 'server'`, `@astrojs/node`
   adapter). Pages fetch from the Crystal API server-side
@@ -69,6 +69,10 @@ npm run preview      # serve the production build
 ```sh
 npx playwright test  # boots the dev server itself, hits it at 127.0.0.1:4321
 ```
+
+The config loads `.env` into the test process and sets `ASTRO_DEV_BACKGROUND=1` so
+astro runs in the foreground (otherwise it auto-daemonizes in agent environments
+and Playwright sees an early exit).
 
 One smoke test exists (`tests/trending.spec.ts`) against the one ported page
 (renders the trending feed, cross-checks real video data against the raw

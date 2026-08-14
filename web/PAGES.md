@@ -12,7 +12,7 @@ Legend:
 | Status | Route | Backing API |
 |--------|-------|-------------|
 | [ ] | `/` (home) | `/api/v1/trending` + `/api/v1/popular` |
-| [ ] | `/feed/popular` | `/api/v1/popular` |
+| [ ] | `/feed/popular` | `/api/v1/popular` (aggregates channels users subscribe to — empty on a zero-user instance) |
 | [ ] | `/feed/trending` | `/api/v1/trending` |
 | [ ] | `/watch` | `/api/v1/videos/:id` + `/api/v1/comments/:id` |
 | [ ] | `/search` (+ `/results` alias) | `/api/v1/search` (+ `/api/v1/search/suggestions`) |

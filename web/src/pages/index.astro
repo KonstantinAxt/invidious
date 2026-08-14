@@ -3,7 +3,6 @@ import { getTrending, resolveApiUrl, type Video } from '../lib/invidious-api';
 
 const videos: Video[] = await getTrending();
 
-// Prefer a mid-size thumbnail so the first paint is light.
 function thumbnailOf(video: Video): string | undefined {
   const thumb = video.videoThumbnails.find((t) => t.quality === 'medium')
     ?? video.videoThumbnails[0];
