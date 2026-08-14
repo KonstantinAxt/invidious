@@ -14,7 +14,7 @@ export default defineConfig({
     baseURL: 'http://127.0.0.1:4321',
   },
   // Boot the Astro dev server (SSR) for the tests. Port pinned to 4321 so it
-  // doesn't collide with the Crystal backend (3001) or the WhatsApp bridge (3000).
+  // doesn't collide with the Crystal backend (3000).
   // ASTRO_DEV_BACKGROUND disables astro's agent-environment auto-backgrounding
   // (it would daemonize the server and make Playwright see an "early exit");
   // --ignore-lock avoids stale lock files from killed runs blocking startup.

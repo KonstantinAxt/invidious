@@ -39,23 +39,21 @@ From the repo root:
 docker compose up -d
 ```
 
-> **Dev-machine note**: this machine's WhatsApp bridge occupies `127.0.0.1:3000`,
-> which the repo's `docker-compose.yml` maps. To run the backend on `3001`
-> without touching the repo file:
+> **Known gotcha**: the repo's dev `docker-compose.yml` ships
+> `hmac_key: "CHANGE_ME!!"`, which this source version hard-rejects at startup
+> (`src/invidious/config.cr:275-278` exits on any `CHANGE_ME!!` value). Run it
+> from a copy with a real key instead of touching the repo file:
 >
 > ```sh
-> sed 's|"127.0.0.1:3000:3000"|"127.0.0.1:3001:3000"|' docker-compose.yml > /tmp/invidious-compose-3001.yml
-> # the upstream dev compose ships hmac_key "CHANGE_ME!!", which this source
-> # version rejects at startup — put a random key in your /tmp copy instead
-> docker compose -p invidious -f /tmp/invidious-compose-3001.yml up -d
+> sed "s|hmac_key: \"CHANGE_ME!!\"|hmac_key: \"$(openssl rand -hex 32)\"|" \
+>   docker-compose.yml > /tmp/invidious-compose.yml
+> docker compose -p invidious -f /tmp/invidious-compose.yml up -d
 > ```
->
-> `.env.example` defaults to `http://localhost:3001` accordingly.
 
 Check it's serving:
 
 ```sh
-curl http://localhost:3001/api/v1/trending   # real video JSON, may take a few seconds on first call
+curl http://localhost:3000/api/v1/trending   # real video JSON, may take a few seconds on first call
 ```
 
 ## Running the frontend
