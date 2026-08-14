@@ -1,0 +1,19 @@
+{
+  "name": "invidious-web",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@astrojs/node": "^11.1.2",
+    "astro": "^7.2.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
+  }
+}
