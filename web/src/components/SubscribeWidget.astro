@@ -23,21 +23,18 @@ const href = `/login?referer=${encodeURIComponent(referer ?? `/channel/${ucid}`)
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    border-radius: var(--radius-full);
-    background: var(--color-accent);
-    color: var(--color-badge-text);
-    font-weight: 600;
-    font-size: var(--font-size-sm);
-  }
-
-  .subscribe-widget:hover {
-    background: var(--color-accent-strong);
-    text-decoration: none;
+    height: 40px;
+    padding: 0 var(--space-5);
+    border-radius: var(--radius-button);
+    background: var(--color-accent-button);
+    color: #ffffff;
+    font-weight: 500;
+    font-size: var(--font-size-md);
   }
 
   .count {
     opacity: 0.85;
     font-weight: 400;
+    font-size: var(--font-size-sm);
   }
 </style>

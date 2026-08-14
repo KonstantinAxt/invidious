@@ -1,5 +1,9 @@
 import type {
+  ApiComment,
+  CommunityPost,
   GridItem,
+  PlaylistVideo,
+  RelatedVideo,
   SearchChannelShape,
   SearchHashtagShape,
   SearchPlaylistShape,
@@ -26,7 +30,7 @@ export const sampleVideo: SearchVideoShape = {
   viewCount: 1_234_567,
   viewCountText: '1,234,567 views',
   published: now - 3 * DAY,
-  publishedText: 'Shared 3 days ago',
+  publishedText: '3 days ago',
   lengthSeconds: 134,
   liveNow: false,
   premium: false,
@@ -102,11 +106,13 @@ export const mixedGrid: GridItem[] = [
     kind: 'video',
     video: sampleVideo,
     thumbnailSrc: 'https://placehold.co/320x180/232323/f0f0f0?text=Thumbnail',
+    avatarSrc: 'https://placehold.co/48x48/232323/f0f0f0?text=Avatar',
   },
   {
     kind: 'video',
     video: liveVideo,
     thumbnailSrc: 'https://placehold.co/320x180/232323/f0f0f0?text=Live',
+    avatarSrc: 'https://placehold.co/48x48/232323/f0f0f0?text=Avatar',
   },
   {
     kind: 'channel',
@@ -121,3 +127,69 @@ export const mixedGrid: GridItem[] = [
   { kind: 'hashtag', hashtag: sampleHashtag },
   { kind: 'parse-error', message: null },
 ]
+
+export const sampleRelatedVideo: RelatedVideo = {
+  title: 'A related video about design systems',
+  videoId: 'related123',
+  author: 'Design Channel',
+  authorId: 'UCdesign123',
+  authorUrl: '/channel/UCdesign123',
+  authorVerified: true,
+  videoThumbnails: [
+    { quality: 'medium', url: '/vi/related123/mqdefault.jpg', width: 320, height: 180 },
+  ],
+  lengthSeconds: 845,
+  published: now - 12 * DAY,
+  publishedText: '12 days ago',
+  viewCountText: '892K views',
+}
+
+export const sampleComment: ApiComment = {
+  author: 'Viewer One',
+  authorId: 'UCviewer1',
+  authorIsChannelOwner: false,
+  authorThumbnail: '/ggpht/viewer1.jpg',
+  authorUrl: '/channel/UCviewer1',
+  commentId: 'comment123',
+  content: 'This interface looks great!',
+  contentHtml: '<p>This interface looks great!</p>',
+  isEdited: false,
+  isPinned: true,
+  isSponsor: false,
+  likeCount: 482,
+  published: now - DAY,
+  publishedText: '1 day ago',
+  verified: false,
+}
+
+export const sampleCommunityPost: CommunityPost = {
+  author: 'Invidious',
+  authorId: 'UC4QobU6STFB0P71PMvOGN5A',
+  authorIsChannelOwner: true,
+  authorThumbnails: [{ url: '/ggpht/avatar.jpg', width: 176, height: 176 }],
+  authorUrl: '/channel/UC4QobU6STFB0P71PMvOGN5A',
+  commentId: 'post123',
+  content: 'We shipped the redesign. What do you think?',
+  contentHtml: '<p>We shipped the redesign. What do you think?</p>',
+  isEdited: false,
+  likeCount: 1250,
+  published: now - 2 * DAY,
+  publishedText: '2 days ago',
+  replyCount: 87,
+  attachment: null,
+}
+
+export const samplePlaylistVideo: PlaylistVideo = {
+  author: 'Focus Sounds',
+  authorId: 'UCfocus123',
+  authorUrl: '/channel/UCfocus123',
+  index: 0,
+  lengthSeconds: 421,
+  liveNow: false,
+  title: 'First track in the playlist',
+  type: 'video',
+  videoId: 'track123',
+  videoThumbnails: [
+    { quality: 'medium', url: '/vi/track123/mqdefault.jpg', width: 320, height: 180 },
+  ],
+}

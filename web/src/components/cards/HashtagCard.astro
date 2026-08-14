@@ -26,18 +26,19 @@ const [videos, channels] = await Promise.all([
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
-    padding: var(--space-3);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-thumb);
   }
 
   .title {
     color: var(--color-text);
-    font-weight: 600;
+    font-size: var(--font-size-title);
+    font-weight: 500;
   }
 
   .stats {
     color: var(--color-text-secondary);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-md);
   }
 </style>

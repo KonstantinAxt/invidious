@@ -1,0 +1,65 @@
+---
+import { shortNumber } from '../lib/numbers'
+import Icon from './icons/Icon.astro'
+
+interface Props {
+  likeCount?: number
+  shareLabel: string
+}
+
+const { likeCount = 0, shareLabel } = Astro.props
+---
+
+<div class="action-pills">
+  <span class="pill">
+    <span class="group">
+      <Icon name="like" size={24} />
+      {likeCount > 0 && <span class="count">{shortNumber(likeCount)}</span>}
+    </span>
+    <span class="divider" />
+    <span class="group">
+      <Icon name="dislike" size={24} />
+    </span>
+  </span>
+  <span class="pill share-pill">
+    <Icon name="share" size={22} />
+    {shareLabel}
+  </span>
+</div>
+
+<style>
+  .action-pills {
+    display: flex;
+    gap: 10px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 100px;
+    background: var(--color-fill-button);
+    color: var(--color-text);
+    font-size: var(--font-size-md);
+    font-weight: 500;
+  }
+
+  .share-pill {
+    padding: 0 24px 0 16px;
+    border-radius: 23px;
+  }
+
+  .group {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .divider {
+    width: 1.286px;
+    height: 28px;
+    background: var(--color-border-hairline);
+  }
+</style>

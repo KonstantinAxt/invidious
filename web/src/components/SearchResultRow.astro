@@ -1,0 +1,192 @@
+---
+import type { SearchVideoShape } from '../lib/api-types'
+import { formatDuration } from '../lib/format'
+import Icon from './icons/Icon.astro'
+
+interface Props {
+  video: SearchVideoShape
+  thumbnailSrc?: string
+  avatarSrc?: string
+}
+
+const { video, thumbnailSrc, avatarSrc } = Astro.props
+---
+
+<article class="result-row">
+  <a class="thumb" href={`/watch?v=${video.videoId}`} aria-label={video.title}>
+    {thumbnailSrc && <img src={thumbnailSrc} alt="" loading="lazy" />}
+    {formatDuration(video.lengthSeconds) && (
+      <span class="badge">{formatDuration(video.lengthSeconds)}</span>
+    )}
+  </a>
+  <div class="info">
+    <div class="title-row">
+      <a class="title" href={`/watch?v=${video.videoId}`}>{video.title}</a>
+      <span class="more"><Icon name="more" size={24} /></span>
+    </div>
+    <div class="meta">
+      {video.viewCountText && (
+        <span class="stat">
+          <Icon name="eye" size={24} />
+          {video.viewCountText}
+        </span>
+      )}
+      <span class="stat">
+        <Icon name="clock" size={24} />
+        {video.publishedText}
+      </span>
+      <span class="pill">
+        <Icon name="like" size={24} />
+        <span class="divider" />
+        <Icon name="dislike" size={24} />
+      </span>
+    </div>
+    <div class="channel">
+      <a class="channel-avatar" href={video.authorUrl} aria-label={video.author}>
+        {avatarSrc && <img src={avatarSrc} alt="" loading="lazy" />}
+      </a>
+      <a class="channel-name" href={video.authorUrl}>
+        {video.author}
+        {video.authorVerified && <Icon name="check" size={15} />}
+      </a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .result-row {
+    display: flex;
+    gap: var(--space-4);
+  }
+
+  .thumb {
+    position: relative;
+    flex-shrink: 0;
+    width: 332px;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-thumb);
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .badge {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-badge);
+    background: var(--color-badge-bg);
+    color: var(--color-badge-text);
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    line-height: 1.7;
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text);
+    font-size: var(--font-size-title);
+    font-weight: 500;
+    line-height: 25px;
+  }
+
+  .title:hover {
+    text-decoration: none;
+  }
+
+  .more {
+    flex-shrink: 0;
+    color: var(--color-text-secondary);
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    min-height: 40px;
+    color: var(--color-text);
+    font-size: var(--font-size-md);
+  }
+
+  .stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    height: 32px;
+    padding: 0 16px;
+    border-radius: 100px;
+    background: var(--color-fill-button);
+    color: var(--color-text);
+  }
+
+  .divider {
+    width: 1.286px;
+    height: 28px;
+    background: var(--color-border-hairline);
+  }
+
+  .channel {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .channel-avatar {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+
+  .channel-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .channel-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text);
+    font-size: var(--font-size-md);
+    line-height: 28.3px;
+  }
+
+  .channel-name:hover {
+    text-decoration: none;
+    color: var(--color-text-secondary);
+  }
+</style>

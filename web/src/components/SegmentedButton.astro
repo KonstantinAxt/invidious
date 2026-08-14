@@ -1,0 +1,51 @@
+---
+interface Props {
+  segments: { label: string; selected?: boolean }[]
+}
+
+const { segments } = Astro.props
+---
+
+<div class="segmented">
+  {segments.map((segment) => (
+    <span class:list={['segment', { selected: segment.selected }]}>{segment.label}</span>
+  ))}
+</div>
+
+<style>
+  .segmented {
+    display: inline-flex;
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .segment {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 137px;
+    height: 36px;
+    padding: 10px 20px;
+    margin-left: -1px;
+    border: 1px solid #2c2c2c;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: 0.1px;
+  }
+
+  .segment:first-child {
+    margin-left: 0;
+    border-radius: 100px 0 0 100px;
+  }
+
+  .segment:last-child {
+    border-radius: 0 100px 100px 0;
+  }
+
+  .segment.selected {
+    background: #ffffff;
+    color: #000000;
+  }
+</style>

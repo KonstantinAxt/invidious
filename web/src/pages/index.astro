@@ -1,5 +1,6 @@
 ---
-import VideoGrid from '../components/VideoGrid.astro'
+import ChipsRow from '../components/ChipsRow.astro'
+import FeedSection from '../components/FeedSection.astro'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import type { SearchVideoShape } from '../lib/api-types'
 import { detectLocale, translate } from '../lib/i18n'
@@ -7,15 +8,31 @@ import { getTrending, resolveApiUrl } from '../lib/invidious-api'
 import { resolveGridItems } from '../lib/media'
 
 const locale = detectLocale(Astro.request.headers.get('accept-language'))
-const title = await translate(locale, 'Trending')
+const [title, allLabel, musicLabel, gamingLabel, moviesLabel, liveLabel, newsLabel] =
+  await Promise.all([
+    translate(locale, 'Trending'),
+    translate(locale, 'All'),
+    translate(locale, 'Music'),
+    translate(locale, 'Gaming'),
+    translate(locale, 'Movies'),
+    translate(locale, 'Live'),
+    translate(locale, 'News'),
+  ])
 
 const videos = await getTrending()
 const items = resolveGridItems(videos as SearchVideoShape[], resolveApiUrl)
 ---
 
-<BaseLayout title={title} locale={locale}>
-  <main class="page-container">
-    <h1>{title}</h1>
-    <VideoGrid items={items} locale={locale} />
-  </main>
+<BaseLayout title={title} locale={locale} activeHref="/">
+  <ChipsRow
+    chips={[
+      { label: allLabel, selected: true },
+      { label: musicLabel },
+      { label: gamingLabel },
+      { label: moviesLabel },
+      { label: liveLabel },
+      { label: newsLabel },
+    ]}
+  />
+  <FeedSection title={title} locale={locale} items={items} variant="hero" />
 </BaseLayout>

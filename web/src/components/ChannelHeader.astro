@@ -53,27 +53,27 @@ const [rss, onYouTube, switchInstance, tabLabels, sortLabels] = await Promise.al
     <div class="channel-info">
       <h1 class="name">
         {author}
-        {verified && <Icon name="check" size={20} />}
+        {verified && <Icon name="check" size={16} />}
       </h1>
       {pronouns && <div class="pronouns">{pronouns}</div>}
       <div class="actions">
         <SubscribeWidget locale={locale} ucid={ucid} subCountText={subCountText} referer={baseUrl} />
         <a class="icon-link" href={`/feed/channel/${ucid}`} title={rss}>
-          <Icon name="rss" size={18} label={rss} />
+          <Icon name="rss" size={24} label={rss} />
         </a>
         <a
           class="icon-link"
           href={`https://www.youtube.com/channel/${ucid}`}
           title={onYouTube}
         >
-          <Icon name="youtube" size={18} label={onYouTube} />
+          <Icon name="youtube" size={24} label={onYouTube} />
         </a>
         <a
           class="icon-link"
           href={`https://redirect.invidious.io/channel/${ucid}`}
           title={switchInstance}
         >
-          <Icon name="switch" size={18} label={switchInstance} />
+          <Icon name="switch" size={24} label={switchInstance} />
         </a>
       </div>
     </div>
@@ -113,30 +113,43 @@ const [rss, onYouTube, switchInstance, tabLabels, sortLabels] = await Promise.al
 
   .banner {
     width: 100%;
-    max-height: 200px;
+    aspect-ratio: 6 / 1;
+    max-height: 241px;
     object-fit: cover;
-    border-radius: var(--radius-md);
+    border-radius: 22px;
     background: var(--color-surface);
   }
 
   .channel-main {
     display: flex;
-    align-items: center;
-    gap: var(--space-4);
+    align-items: flex-end;
+    gap: var(--space-5);
+    margin-top: -65px;
+    padding: 0 var(--space-2);
   }
 
   .avatar {
-    width: 96px;
-    height: 96px;
-    border-radius: var(--radius-full);
-    background: var(--color-surface);
+    width: 160px;
+    height: 160px;
+    border-radius: 80px;
+    border: 1px solid #3d3d3d;
+    background: #000000;
+    padding: 12px;
+    object-fit: cover;
+  }
+
+  .channel-info {
+    min-width: 0;
   }
 
   .name {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: 8px;
     margin: 0;
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 28.4px;
   }
 
   .pronouns {
@@ -147,43 +160,43 @@ const [rss, onYouTube, switchInstance, tabLabels, sortLabels] = await Promise.al
   .actions {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    margin-top: var(--space-2);
+    gap: 18px;
+    margin-top: var(--space-3);
   }
 
   .icon-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-full);
-    color: var(--color-text-secondary);
-  }
-
-  .icon-link:hover {
-    background: var(--color-surface-hover);
     color: var(--color-text);
   }
 
   .description {
     max-width: 65ch;
     color: var(--color-text-secondary);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-md);
   }
 
   .tabs {
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
-    gap: var(--space-1);
-    border-bottom: 1px solid var(--color-border);
+    gap: 23px;
+    height: 48px;
+    border-bottom: 1px solid var(--color-border-panel);
   }
 
   .tab {
-    padding: var(--space-2) var(--space-3);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 48px;
+    padding: 14px 16px;
     color: var(--color-text-secondary);
     font-size: var(--font-size-sm);
     font-weight: 500;
+    line-height: 20px;
+    letter-spacing: 0.1px;
   }
 
   .tab:hover {
@@ -193,7 +206,17 @@ const [rss, onYouTube, switchInstance, tabLabels, sortLabels] = await Promise.al
 
   .tab.selected {
     color: var(--color-text);
-    box-shadow: inset 0 -2px 0 var(--color-text);
+  }
+
+  .tab.selected::after {
+    content: '';
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    bottom: 0;
+    height: 3px;
+    border-radius: 100px 100px 0 0;
+    background: var(--color-live-gradient);
   }
 
   .sorts {
@@ -215,7 +238,7 @@ const [rss, onYouTube, switchInstance, tabLabels, sortLabels] = await Promise.al
   }
 
   .sort.selected {
-    background: var(--color-accent);
-    color: var(--color-badge-text);
+    background: var(--color-accent-fill);
+    color: var(--color-accent);
   }
 </style>

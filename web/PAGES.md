@@ -11,16 +11,16 @@ Legend:
 
 | Status | Route | Backing API |
 |--------|-------|-------------|
-| [ ] | `/` (home) | `/api/v1/trending` + `/api/v1/popular` |
+| [x] | `/` (home) | `/api/v1/trending` + `/api/v1/popular` |
 | [ ] | `/feed/popular` | `/api/v1/popular` (aggregates channels users subscribe to — empty on a zero-user instance) |
 | [ ] | `/feed/trending` | `/api/v1/trending` |
-| [ ] | `/watch` | `/api/v1/videos/:id` + `/api/v1/comments/:id` |
-| [ ] | `/search` (+ `/results` alias) | `/api/v1/search` (+ `/api/v1/search/suggestions`) |
+| [x] | `/watch` | `/api/v1/videos/:id` + `/api/v1/comments/:id` |
+| [x] | `/search` (+ `/results` alias — alias not ported yet) | `/api/v1/search` (+ `/api/v1/search/suggestions`) |
 | [ ] | `/hashtag/:hashtag` | `/api/v1/hashtag/:hashtag` |
-| [ ] | `/playlist` | `/api/v1/playlists/:plid` |
+| [x] | `/playlist` | `/api/v1/playlists/:plid` |
 | [ ] | `/mix` | `/api/v1/mixes/:rdid` |
 | [ ] | `/watch_videos` | `/api/v1/playlists/:plid` |
-| [ ] | `/channel/:ucid` (+ `/channel/:ucid/home`) | `/api/v1/channels/:ucid` |
+| [x] | `/channel/:ucid` (+ `/channel/:ucid/home`) | `/api/v1/channels/:ucid` |
 | [ ] | `/channel/:ucid/videos` | `/api/v1/channels/:ucid/videos` |
 | [ ] | `/channel/:ucid/shorts` | `/api/v1/channels/:ucid/shorts` |
 | [ ] | `/channel/:ucid/streams` | `/api/v1/channels/:ucid/streams` |

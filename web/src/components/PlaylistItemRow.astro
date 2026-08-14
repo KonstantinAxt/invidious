@@ -1,0 +1,132 @@
+---
+import type { PlaylistVideo } from '../lib/api-types'
+import { formatDuration } from '../lib/format'
+import { translate } from '../lib/i18n'
+import Icon from './icons/Icon.astro'
+
+interface Props {
+  video: PlaylistVideo
+  thumbnailSrc?: string
+  locale: string
+}
+
+const { video, thumbnailSrc, locale } = Astro.props
+const liveLabel = await translate(locale, 'LIVE')
+---
+
+<article class="item-row">
+  <span class="index">{video.index + 1}</span>
+  <a class="thumb" href={`/watch?v=${video.videoId}`} aria-label={video.title}>
+    {thumbnailSrc && <img src={thumbnailSrc} alt="" loading="lazy" />}
+    {formatDuration(video.lengthSeconds) && (
+      <span class="badge">{formatDuration(video.lengthSeconds)}</span>
+    )}
+  </a>
+  <div class="info">
+    <a class="title" href={`/watch?v=${video.videoId}`}>{video.title}</a>
+    <div class="meta">
+      <a href={video.authorUrl}>{video.author}</a>
+      {video.liveNow && <span class="live">{liveLabel}</span>}
+    </div>
+  </div>
+  <span class="more"><Icon name="more" size={24} /></span>
+</article>
+
+<style>
+  .item-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .index {
+    flex-shrink: 0;
+    width: 24px;
+    text-align: right;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-md);
+    font-weight: 500;
+  }
+
+  .thumb {
+    position: relative;
+    flex-shrink: 0;
+    width: 259px;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-thumb);
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .badge {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-badge);
+    background: var(--color-badge-bg);
+    color: var(--color-badge-text);
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    line-height: 1.7;
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+    flex: 1;
+  }
+
+  .title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: var(--font-size-title);
+    font-weight: 500;
+    line-height: 25px;
+  }
+
+  .title:hover {
+    text-decoration: none;
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .meta a {
+    color: inherit;
+  }
+
+  .meta a:hover {
+    color: var(--color-text);
+  }
+
+  .live {
+    padding: 0 8px;
+    border-radius: var(--radius-sm);
+    background: var(--color-live);
+    color: #ffffff;
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+  }
+
+  .more {
+    flex-shrink: 0;
+    color: var(--color-text-secondary);
+  }
+</style>

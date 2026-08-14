@@ -1,0 +1,140 @@
+---
+import type { RelatedVideo } from '../lib/api-types'
+import { formatDuration } from '../lib/format'
+import Icon from './icons/Icon.astro'
+
+interface Props {
+  title: string
+  videos: { video: RelatedVideo; thumbnailSrc?: string }[]
+}
+
+const { title, videos } = Astro.props
+---
+
+<section class="suggestions">
+  <h2 class="rail-title">{title}</h2>
+  <ul>
+    {videos.map(({ video, thumbnailSrc }) => (
+      <li>
+        <a class="row" href={`/watch?v=${video.videoId}`}>
+          <span class="thumb">
+            {thumbnailSrc && <img src={thumbnailSrc} alt="" loading="lazy" />}
+            {formatDuration(video.lengthSeconds) && (
+              <span class="badge">{formatDuration(video.lengthSeconds)}</span>
+            )}
+          </span>
+          <span class="info">
+            <span class="title">{video.title}</span>
+            <span class="channel">
+              {video.author}
+              {video.authorVerified && <Icon name="check" size={12} />}
+            </span>
+            <span class="meta">
+              {video.viewCountText} • {video.publishedText}
+            </span>
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .rail-title {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    letter-spacing: 0.1px;
+    color: var(--color-text);
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .row {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .row:hover {
+    text-decoration: none;
+  }
+
+  .thumb {
+    position: relative;
+    flex-shrink: 0;
+    width: 168px;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .badge {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    padding: 0 4px;
+    border-radius: var(--radius-sm);
+    background: var(--color-badge-bg);
+    color: var(--color-badge-text);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    line-height: 18px;
+    letter-spacing: 0.35px;
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    line-height: 20px;
+  }
+
+  .row:hover .title {
+    color: var(--color-text-secondary);
+  }
+
+  .channel {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+  }
+
+  .meta {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    line-height: 18px;
+  }
+</style>

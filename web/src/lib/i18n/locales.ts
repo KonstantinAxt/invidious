@@ -1,4 +1,6 @@
-const modules = import.meta.glob('../../locales/*.json', { import: 'default' })
+import { OVERRIDES } from './overrides'
+
+const modules = import.meta.glob('../../../locales/*.json', { import: 'default' })
 
 const LOCALE_RE = /\/locales\/(.+)\.json$/
 
@@ -22,9 +24,9 @@ export function loadMessages(locale: string): Promise<Record<string, string>> {
   if (existing) return existing
 
   const promise = (async () => {
-    const loader = modules[`../../locales/${locale}.json`]
+    const loader = modules[`../../../locales/${locale}.json`]
     if (!loader) return {}
-    return (await loader()) as Record<string, string>
+    return { ...((await loader()) as Record<string, string>), ...OVERRIDES }
   })()
 
   cache.set(locale, promise)

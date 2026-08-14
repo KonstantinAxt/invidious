@@ -1,0 +1,76 @@
+---
+import ChipsRow from '../components/ChipsRow.astro'
+import SearchResultRow from '../components/SearchResultRow.astro'
+import VideoGrid from '../components/VideoGrid.astro'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import type { SearchItemShape, SearchVideoShape } from '../lib/api-types'
+import { detectLocale, translate } from '../lib/i18n'
+import { resolveApiUrl, searchVideos } from '../lib/invidious-api'
+import { pickThumbnail, resolveGridItems } from '../lib/media'
+
+const query = Astro.url.searchParams.get('q') ?? ''
+const locale = detectLocale(Astro.request.headers.get('accept-language'))
+const title = query || (await translate(locale, 'search'))
+const [allLabel, anyTimeLabel, anyLabel, relevanceLabel, typeLabel, dateLabel, durationLabel, featuresLabel, sortLabel] =
+  await Promise.all([
+    translate(locale, 'All'),
+    translate(locale, 'Any Time'),
+    translate(locale, 'Any'),
+    translate(locale, 'Relevance'),
+    translate(locale, 'Type:'),
+    translate(locale, 'Upload Date:'),
+    translate(locale, 'Duration:'),
+    translate(locale, 'Features:'),
+    translate(locale, 'Sort by:'),
+  ])
+
+const items: SearchItemShape[] = query ? await searchVideos(query) : []
+
+const videoRows = items
+  .filter((item): item is SearchVideoShape => item.type === 'video')
+  .map((video) => ({
+    video,
+    thumbnailSrc: resolveApiUrl(pickThumbnail(video.videoThumbnails)?.url ?? ''),
+    avatarSrc: resolveApiUrl(
+      video.authorThumbnails?.find((t) => t.width >= 76)?.url ??
+        video.authorThumbnails?.at(-1)?.url ??
+        '',
+    ),
+  }))
+
+const otherItems = resolveGridItems(
+  items.filter((item) => item.type !== 'video'),
+  resolveApiUrl,
+)
+---
+
+<BaseLayout title={title} locale={locale} query={query} activeHref="/search">
+  <ChipsRow
+    chips={[
+      { label: typeLabel, value: allLabel },
+      { label: dateLabel, value: anyTimeLabel },
+      { label: durationLabel, value: anyLabel },
+      { label: featuresLabel, value: anyLabel },
+      { label: sortLabel, value: relevanceLabel },
+    ]}
+  />
+  <div class="results">
+    {videoRows.map((row) => (
+      <SearchResultRow
+        video={row.video}
+        thumbnailSrc={row.thumbnailSrc}
+        avatarSrc={row.avatarSrc}
+      />
+    ))}
+    {otherItems.length > 0 && <VideoGrid items={otherItems} locale={locale} />}
+  </div>
+</BaseLayout>
+
+<style>
+  .results {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding-top: var(--space-4);
+  }
+</style>

@@ -1,0 +1,101 @@
+---
+import Icon from './icons/Icon.astro'
+
+interface Props {
+  chips: { label: string; value?: string; href?: string; selected?: boolean }[]
+  variant?: 'tag' | 'filter'
+}
+
+const { chips, variant = 'tag' } = Astro.props
+---
+
+<div class:list={['chips-row', `variant-${variant}`]}>
+  {chips.map((chip) => {
+    const content = (
+      <>
+        <span class="label">{chip.label}</span>
+        {chip.value && <span class="value">{chip.value}</span>}
+        {chip.value && <Icon name="chevron-down" size={24} />}
+      </>
+    )
+    return chip.href ? (
+      <a href={chip.href} class:list={['chip', { selected: chip.selected }]}>
+        {content}
+      </a>
+    ) : (
+      <span class:list={['chip', { selected: chip.selected }]}>{content}</span>
+    )
+  })}
+</div>
+
+<style>
+  .chips-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: 36px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .chip {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 6px 16px;
+    border-radius: var(--radius-md);
+    background: var(--color-fill-chip);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: default;
+  }
+
+  a.chip:hover {
+    background: var(--color-surface-hover);
+    text-decoration: none;
+  }
+
+  .chip.selected {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  .chip:has(.value) {
+    padding: 6px 12px 6px 16px;
+  }
+
+  .chip:has(.value) .label {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .chip .value {
+    color: #ffffff;
+  }
+
+  .chip.selected .label,
+  .chip.selected .value {
+    color: #000000;
+  }
+
+  :root[data-theme='light'] .chip .label {
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  :root[data-theme='light'] .chip .value {
+    color: #111111;
+  }
+
+  .variant-filter .chip {
+    background: transparent;
+    border: 1px solid var(--color-border-chip);
+  }
+
+  .variant-filter .chip.selected {
+    background: #ffffff;
+    border-color: transparent;
+    color: #000000;
+  }
+</style>

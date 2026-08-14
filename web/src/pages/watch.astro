@@ -1,0 +1,248 @@
+---
+import ActionPills from '../components/ActionPills.astro'
+import CommentSection from '../components/CommentSection.astro'
+import Icon from '../components/icons/Icon.astro'
+import Player from '../components/Player.astro'
+import SegmentedButton from '../components/SegmentedButton.astro'
+import SubscribeWidget from '../components/SubscribeWidget.astro'
+import SuggestionsRail from '../components/SuggestionsRail.astro'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import type { VideoDetail } from '../lib/api-types'
+import { detectLocale, translate } from '../lib/i18n'
+import { getComments, getVideo, resolveApiUrl } from '../lib/invidious-api'
+import { pickThumbnail } from '../lib/media'
+
+const videoId = Astro.url.searchParams.get('v')
+if (!videoId) {
+  return Astro.redirect('/')
+}
+
+const locale = detectLocale(Astro.request.headers.get('accept-language'))
+const [shareLabel, relatedLabel, upNextLabel] = await Promise.all([
+  translate(locale, 'Share'),
+  translate(locale, 'Related videos'),
+  translate(locale, 'Up next'),
+])
+
+let video: VideoDetail | null
+let errorMessage = ''
+try {
+  video = await getVideo(videoId)
+} catch (error) {
+  video = null
+  errorMessage = error instanceof Error ? error.message : String(error)
+}
+
+const comments = video ? await getComments(videoId) : null
+
+const poster = video
+  ? resolveApiUrl(pickThumbnail(video.videoThumbnails)?.url ?? '')
+  : undefined
+const avatar = video
+  ? resolveApiUrl(
+      video.authorThumbnails?.find((t) => t.width >= 76)?.url ??
+        video.authorThumbnails?.at(-1)?.url ??
+        '',
+    )
+  : undefined
+
+const related = (video?.recommendedVideos ?? []).map((item) => ({
+  video: item,
+  thumbnailSrc: resolveApiUrl(pickThumbnail(item.videoThumbnails)?.url ?? ''),
+}))
+
+const commentItems = (comments?.comments ?? []).map((comment) => ({
+  comment,
+  avatarSrc: comment.authorThumbnail ? resolveApiUrl(comment.authorThumbnail) : undefined,
+}))
+---
+
+<BaseLayout
+  title={video?.title ?? videoId}
+  locale={locale}
+  description={video?.description}
+  showSidebar
+>
+  {video && poster ? (
+    <div class="watch-layout">
+      <div class="watch-main">
+        <Player
+          poster={poster}
+          sources={video.hlsUrl ? [{ src: video.hlsUrl, type: 'application/x-mpegURL' }] : []}
+        />
+        <h1 class="watch-title">{video.title}</h1>
+        <div class="meta-row">
+          <span class="meta">
+            {video.viewCountText && (
+              <span class="stat"><Icon name="eye" size={24} /> {video.viewCountText}</span>
+            )}
+            <span class="stat"><Icon name="clock" size={24} /> {video.publishedText}</span>
+          </span>
+          <ActionPills likeCount={video.likeCount} shareLabel={shareLabel} />
+        </div>
+        <div class="channel-row">
+          <a class="channel-avatar" href={video.authorUrl} aria-label={video.author}>
+            {avatar && <img src={avatar} alt="" loading="lazy" />}
+          </a>
+          <div class="channel-info">
+            <a class="channel-name" href={video.authorUrl}>
+              {video.author}
+              {video.authorVerified && <Icon name="check" size={18} />}
+            </a>
+            <span class="sub-count">{video.subCountText}</span>
+          </div>
+          <SubscribeWidget
+            locale={locale}
+            ucid={video.authorId}
+            subCountText={video.subCountText}
+            referer={Astro.url.pathname + Astro.url.search}
+          />
+        </div>
+        {video.descriptionHtml && (
+          <div class="description" set:html={video.descriptionHtml} />
+        )}
+        {comments && (
+          <CommentSection
+            locale={locale}
+            commentCount={comments.commentCount ?? comments.comments.length}
+            comments={commentItems}
+          />
+        )}
+      </div>
+      <aside class="watch-rail">
+        <SegmentedButton
+          segments={[{ label: relatedLabel, selected: true }, { label: upNextLabel }]}
+        />
+        <SuggestionsRail title={relatedLabel} videos={related} />
+      </aside>
+    </div>
+  ) : (
+    <div class="error-state">
+      <h1>{videoId}</h1>
+      <p>{errorMessage}</p>
+    </div>
+  )}
+</BaseLayout>
+
+<style>
+  .watch-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 411px;
+    gap: var(--space-5);
+    padding-top: var(--space-5);
+  }
+
+  .watch-main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .watch-title {
+    margin: 0;
+    font-size: 23px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .meta-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    flex-wrap: wrap;
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    color: var(--color-text);
+    font-size: var(--font-size-md);
+  }
+
+  .meta .stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .channel-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .channel-avatar {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+
+  .channel-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .channel-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .channel-name {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-text);
+    font-size: var(--font-size-title);
+    font-weight: 500;
+  }
+
+  .sub-count {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .description {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: var(--font-size-md);
+    overflow-wrap: anywhere;
+  }
+
+  .description :global(a) {
+    color: var(--color-link);
+  }
+
+  .watch-rail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    align-items: flex-start;
+  }
+
+  .error-state {
+    padding: var(--space-6) 0;
+    color: var(--color-text-secondary);
+  }
+
+  @media (max-width: 1100px) {
+    .watch-layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .watch-rail {
+      display: none;
+    }
+  }
+</style>

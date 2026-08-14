@@ -1,6 +1,5 @@
 ---
 import type { SearchPlaylistShape } from '../../lib/api-types'
-import { translateCount } from '../../lib/i18n'
 import Icon from '../icons/Icon.astro'
 
 interface Props {
@@ -9,45 +8,57 @@ interface Props {
   thumbnailSrc?: string
 }
 
-const { playlist, locale, thumbnailSrc } = Astro.props
+const { playlist, thumbnailSrc } = Astro.props
 const href = playlist.playlistId.startsWith('RD')
   ? `/mix?list=${playlist.playlistId}`
   : `/playlist?list=${playlist.playlistId}`
-
-const videoCount = await translateCount(
-  locale,
-  'generic_videos_count',
-  playlist.videoCount,
-  'short',
-)
 ---
 
 <article class="playlist-card">
+  <span class="bar bar-back" aria-hidden="true" />
+  <span class="bar bar-front" aria-hidden="true" />
   <a class="thumb" href={href} aria-label={playlist.title}>
     {thumbnailSrc && <img src={thumbnailSrc} alt="" loading="lazy" />}
-    <span class="badge">{videoCount}</span>
+    <span class="badge">
+      <Icon name="list" size={24} />
+      {playlist.videoCount}
+    </span>
   </a>
-  <div class="details">
-    <a class="title" href={href}>{playlist.title}</a>
-    <div class="author">
-      <a href={playlist.authorUrl}>{playlist.author}</a>
-      {playlist.authorVerified && <Icon name="check" size={14} />}
-    </div>
-  </div>
+  {playlist.title && <span class="name-badge">{playlist.title}</span>}
 </article>
 
 <style>
   .playlist-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
+    position: relative;
+  }
+
+  .bar {
+    position: absolute;
+    top: -14px;
+    height: 5px;
+    border-radius: 20px 20px 0 0;
+    pointer-events: none;
+  }
+
+  .bar-back {
+    left: 8%;
+    width: 84%;
+    background: #33141e;
+  }
+
+  .bar-front {
+    top: -7px;
+    left: 4.5%;
+    width: 91%;
+    background: #5d0e27;
   }
 
   .thumb {
     position: relative;
+    z-index: 1;
     display: block;
     aspect-ratio: 16 / 9;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-thumb);
     overflow: hidden;
     background: var(--color-surface);
   }
@@ -60,40 +71,39 @@ const videoCount = await translateCount(
 
   .badge {
     position: absolute;
-    right: var(--space-2);
-    bottom: var(--space-2);
-    padding: 0 var(--space-1);
-    border-radius: var(--radius-sm);
+    right: 10px;
+    bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 8px 2px 12px;
+    border-radius: var(--radius-badge);
     background: var(--color-badge-bg);
     color: var(--color-badge-text);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    line-height: 1.7;
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0.46px;
   }
 
-  .title {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+  .name-badge {
+    position: absolute;
+    z-index: 2;
+    left: 10px;
+    bottom: 10px;
+    max-width: 55%;
     overflow: hidden;
-    color: var(--color-text);
-    font-weight: 600;
-    line-height: 1.3;
-  }
-
-  .title:hover {
-    text-decoration: none;
-  }
-
-  .author {
-    display: flex;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 8px 0 12px;
+    height: 28px;
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-1);
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-sm);
-  }
-
-  .author a {
-    color: inherit;
+    border-radius: var(--radius-badge);
+    background: var(--color-badge-bg);
+    color: var(--color-badge-text);
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    letter-spacing: 0.46px;
   }
 </style>

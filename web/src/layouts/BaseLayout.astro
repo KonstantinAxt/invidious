@@ -1,6 +1,7 @@
 ---
 import Footer from '../components/Footer.astro'
 import Navbar from '../components/Navbar.astro'
+import Sidebar from '../components/Sidebar.astro'
 import { DEFAULT_LOCALE, isRtl } from '../lib/i18n'
 import '../styles/base.css'
 import '../styles/tokens.css'
@@ -10,10 +11,20 @@ interface Props {
   locale?: string
   description?: string
   showSearch?: boolean
+  showSidebar?: boolean
+  activeHref?: string
   query?: string
 }
 
-const { title, locale = DEFAULT_LOCALE, description, showSearch = true, query } = Astro.props
+const {
+  title,
+  locale = DEFAULT_LOCALE,
+  description,
+  showSearch = true,
+  showSidebar = true,
+  activeHref,
+  query,
+} = Astro.props
 const dir = isRtl(locale) ? 'rtl' : 'ltr'
 ---
 
@@ -28,7 +39,31 @@ const dir = isRtl(locale) ? 'rtl' : 'ltr'
   </head>
   <body>
     <Navbar locale={locale} query={query} showSearch={showSearch} />
-    <slot />
-    <Footer locale={locale} />
+    <div class="app-shell">
+      {showSidebar && <Sidebar locale={locale} activeHref={activeHref} />}
+      <main class="app-main">
+        <slot />
+        <Footer locale={locale} />
+      </main>
+    </div>
   </body>
 </html>
+
+<style>
+  .app-shell {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  }
+
+  .app-main {
+    min-width: 0;
+    max-width: var(--content-max-width);
+    padding: 0 var(--space-5);
+  }
+
+  @media (max-width: 900px) {
+    .app-shell {
+      display: block;
+    }
+  }
+</style>

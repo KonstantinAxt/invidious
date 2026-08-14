@@ -8,6 +8,7 @@ export default {
     locale: 'en-US',
     video: sampleVideo,
     thumbnailSrc: 'https://placehold.co/320x180/232323/f0f0f0?text=Thumbnail',
+    avatarSrc: 'https://placehold.co/48x48/232323/f0f0f0?text=Avatar',
   },
 }
 

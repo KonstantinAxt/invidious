@@ -18,7 +18,14 @@ const { items, locale } = Astro.props
   {items.map((item) => {
     switch (item.kind) {
       case 'video':
-        return <VideoCard video={item.video} locale={locale} thumbnailSrc={item.thumbnailSrc} />
+        return (
+          <VideoCard
+            video={item.video}
+            locale={locale}
+            thumbnailSrc={item.thumbnailSrc}
+            avatarSrc={item.avatarSrc}
+          />
+        )
       case 'channel':
         return <ChannelCard channel={item.channel} locale={locale} avatarSrc={item.avatarSrc} />
       case 'playlist':
@@ -38,7 +45,8 @@ const { items, locale } = Astro.props
 <style>
   .video-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fill, minmax(331px, 1fr));
+    row-gap: 45px;
+    column-gap: 19px;
   }
 </style>

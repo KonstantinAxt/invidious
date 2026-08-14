@@ -1,0 +1,41 @@
+---
+import type { GridItem } from '../lib/api-types'
+import VideoGrid from './VideoGrid.astro'
+
+interface Props {
+  title: string
+  locale: string
+  items: GridItem[]
+  variant?: 'default' | 'hero'
+}
+
+const { title, locale, items, variant = 'default' } = Astro.props
+---
+
+<section class:list={['feed-section', `variant-${variant}`]}>
+  <h2 class="section-title">{title}</h2>
+  <VideoGrid items={items} locale={locale} />
+</section>
+
+<style>
+  .feed-section {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    margin: 0;
+    font-family: var(--font-condensed);
+    font-size: var(--font-size-xl);
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  .variant-hero {
+    padding: 30px;
+    border-radius: var(--radius-panel);
+    background: var(--color-fill-hero);
+  }
+</style>

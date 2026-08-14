@@ -1,14 +1,33 @@
-import type { Video } from './api-types'
+import type {
+  ChannelDetail,
+  ChannelVideosResponse,
+  CommentsResponse,
+  CommunityResponse,
+  PlaylistDetail,
+  SearchItemShape,
+  Video,
+  VideoDetail,
+} from './api-types'
 
 export type {
+  ApiComment,
+  ChannelDetail,
+  ChannelVideosResponse,
+  CommentsResponse,
+  CommunityPost,
+  CommunityResponse,
   GridItem,
   ImageObject,
+  PlaylistDetail,
+  PlaylistVideo,
+  RelatedVideo,
   SearchChannelShape,
   SearchHashtagShape,
   SearchItemShape,
   SearchPlaylistShape,
   SearchVideoShape,
   Video,
+  VideoDetail,
   VideoThumbnail,
 } from './api-types'
 
@@ -48,4 +67,45 @@ export function resolveApiUrl(path: string): string {
 
 export async function getTrending(): Promise<Video[]> {
   return fetchJson<Video[]>('/api/v1/trending')
+}
+
+export async function getVideo(id: string): Promise<VideoDetail> {
+  const json = await fetchJson<VideoDetail | { error: string }>(`/api/v1/videos/${id}`)
+  if ('error' in json) {
+    throw new Error(json.error)
+  }
+  return json
+}
+
+export async function getComments(id: string): Promise<CommentsResponse> {
+  try {
+    const json = await fetchJson<CommentsResponse | { error: string }>(`/api/v1/comments/${id}`)
+    if ('error' in json) {
+      return { comments: [], commentCount: 0 }
+    }
+    return json
+  } catch {
+    // 404 or network failure: the section degrades to empty
+    return { comments: [], commentCount: 0 }
+  }
+}
+
+export async function searchVideos(query: string): Promise<SearchItemShape[]> {
+  return fetchJson<SearchItemShape[]>(`/api/v1/search?q=${encodeURIComponent(query)}`)
+}
+
+export async function getChannel(ucid: string): Promise<ChannelDetail> {
+  return fetchJson<ChannelDetail>(`/api/v1/channels/${ucid}`)
+}
+
+export async function getChannelVideos(ucid: string): Promise<ChannelVideosResponse> {
+  return fetchJson<ChannelVideosResponse>(`/api/v1/channels/${ucid}/videos`)
+}
+
+export async function getCommunity(ucid: string): Promise<CommunityResponse> {
+  return fetchJson<CommunityResponse>(`/api/v1/channels/${ucid}/community`)
+}
+
+export async function getPlaylist(plid: string): Promise<PlaylistDetail> {
+  return fetchJson<PlaylistDetail>(`/api/v1/playlists/${plid}`)
 }

@@ -14,15 +14,19 @@ export function resolveGridItems(
     switch (item.type) {
       case 'video': {
         const thumb = pickThumbnail(item.videoThumbnails)
+        const thumbs = item.authorThumbnails ?? []
+        const avatar = thumbs.find((t) => t.width >= 76) ?? thumbs.at(-1)
         result.push({
           kind: 'video',
           video: item,
           thumbnailSrc: thumb ? resolveUrl(thumb.url) : undefined,
+          avatarSrc: avatar ? resolveUrl(avatar.url) : undefined,
         })
         break
       }
       case 'channel': {
-        const avatar = item.authorThumbnails.find((t) => t.width >= 100) ?? item.authorThumbnails[0]
+        const thumbs = item.authorThumbnails ?? []
+        const avatar = thumbs.find((t) => t.width >= 100) ?? thumbs[0]
         result.push({
           kind: 'channel',
           channel: item,

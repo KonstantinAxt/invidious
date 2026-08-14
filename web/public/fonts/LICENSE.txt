@@ -1,0 +1,9 @@
+Roboto and Roboto Condensed are trademarks of Google LLC and are licensed
+under the Apache License, Version 2.0:
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Files fetched from Google Fonts (fonts.googleapis.com / fonts.gstatic.com),
+Roboto v51 weights 400/500 and Roboto Condensed v31 weight 500, latin and
+latin-ext subsets, woff2 format. These are the exact families and weights
+used in the Figma "YouTube Redesign" design file.

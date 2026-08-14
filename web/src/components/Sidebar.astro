@@ -1,0 +1,103 @@
+---
+import { translate } from '../lib/i18n'
+import Icon from './icons/Icon.astro'
+
+interface Props {
+  locale: string
+  activeHref?: string
+  items?: { labelKey: string; icon: string; href: string }[]
+}
+
+const { locale, activeHref = '/', items } = Astro.props
+
+const defaultItems = [
+  { labelKey: 'Home', icon: 'home', href: '/' },
+  { labelKey: 'search', icon: 'search', href: '/search' },
+]
+
+const resolved = items ?? defaultItems
+const labels = await Promise.all(resolved.map((item) => translate(locale, item.labelKey)))
+---
+
+<nav class="sidebar">
+  <ul>
+    {
+      resolved.map((item, index) => (
+        <li>
+          <a href={item.href} class:list={['sidebar-item', { active: item.href === activeHref }]}>
+            <Icon name={item.icon} size={24} />
+            <span>{labels[index]}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .sidebar {
+    position: sticky;
+    top: var(--navbar-height);
+    align-self: start;
+    width: var(--sidebar-width);
+    height: calc(100vh - var(--navbar-height));
+    padding: 11px;
+    overflow-y: auto;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    position: relative;
+  }
+
+  .sidebar-item {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    height: 24px;
+    color: var(--color-text);
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 23.9px;
+  }
+
+  .sidebar-item::before {
+    content: '';
+    position: absolute;
+    left: -11px;
+    right: -11px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 45px;
+    border-radius: 10px;
+    z-index: -1;
+  }
+
+  .sidebar-item:hover {
+    text-decoration: none;
+  }
+
+  .sidebar-item:hover::before {
+    background: var(--color-surface-hover);
+  }
+
+  .sidebar-item.active::before {
+    background: var(--color-accent-fill);
+  }
+
+  @media (max-width: 900px) {
+    .sidebar {
+      display: none;
+    }
+  }
+</style>

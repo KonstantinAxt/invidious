@@ -18,7 +18,7 @@ test('renders navbar and video grid from the Invidious API', async ({ page, requ
   await page.goto('/')
 
   await expect(page.locator('#searchbox')).toBeVisible()
-  await expect(page.locator('a[href="/"]')).toBeVisible()
+  await expect(page.locator('.navbar a[href="/"]')).toBeVisible()
 
   const grid = page.locator('.video-grid')
   await expect(grid).toBeVisible()
@@ -26,10 +26,12 @@ test('renders navbar and video grid from the Invidious API', async ({ page, requ
 
   const firstCard = grid.locator('article').first()
   await expect(firstCard.locator('a[href^="/watch?v="]').first()).toBeVisible()
-  await expect(firstCard.locator('a[href^="/channel/"]')).toBeVisible()
-  await expect(firstCard.locator('img[loading="lazy"]')).toBeVisible()
+  await expect(firstCard.locator('a[href^="/channel/"]').first()).toBeVisible()
 
-  const imgSrc = await firstCard.locator('img[loading="lazy"]').getAttribute('src')
+  const thumb = firstCard.locator('.thumb img')
+  await expect(thumb).toBeVisible()
+
+  const imgSrc = await thumb.getAttribute('src')
   expect(imgSrc?.startsWith(apiBase)).toBeTruthy()
 
   if (!firstVideo.liveNow && firstVideo.lengthSeconds > 0) {

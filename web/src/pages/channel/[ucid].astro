@@ -1,0 +1,97 @@
+---
+import ChannelHeader from '../../components/ChannelHeader.astro'
+import FeedSection from '../../components/FeedSection.astro'
+import PostCard from '../../components/PostCard.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import type { SearchVideoShape } from '../../lib/api-types'
+import { detectLocale, translate, translateCount } from '../../lib/i18n'
+import { getChannel, getChannelVideos, getCommunity, resolveApiUrl } from '../../lib/invidious-api'
+import { resolveGridItems } from '../../lib/media'
+
+const ucid = Astro.params.ucid ?? ''
+if (!ucid) {
+  return Astro.redirect('/')
+}
+
+const locale = detectLocale(Astro.request.headers.get('accept-language'))
+
+const channel = await getChannel(ucid)
+const { videos } = await getChannelVideos(ucid)
+const community = await getCommunity(ucid).catch(() => null)
+
+const subCountText = await translateCount(locale, 'generic_subscribers_count', channel.subCount, 'short')
+const [postsLabel, popularLabel] = await Promise.all([
+  translate(locale, 'Latest posts'),
+  translate(locale, 'Popular videos'),
+])
+const bannerSrc =
+  channel.authorBanners.length > 0
+    ? resolveApiUrl(channel.authorBanners.at(-1)?.url ?? '')
+    : undefined
+
+const items = resolveGridItems(videos as SearchVideoShape[], resolveApiUrl)
+const posts = (community?.comments ?? []).map((post) => ({ post }))
+
+const tabs = [
+  { id: 'home', labelKey: 'Home', href: `/channel/${ucid}` },
+  { id: 'videos', labelKey: 'Videos', href: `/channel/${ucid}/videos` },
+  ...channel.tabs
+    .filter((tab) => !['home', 'videos'].includes(tab))
+    .map((tab) => ({ id: tab, labelKey: tab, href: `/channel/${ucid}/${tab}` })),
+]
+---
+
+<BaseLayout title={channel.author} locale={locale} activeHref="/">
+  <ChannelHeader
+    locale={locale}
+    ucid={ucid}
+    author={channel.author}
+    verified={channel.authorVerified}
+    avatarSrc={resolveApiUrl(
+      channel.authorThumbnails.find((t) => t.width >= 160)?.url ??
+        channel.authorThumbnails.at(-1)?.url ??
+        '',
+    )}
+    bannerSrc={bannerSrc}
+    pronouns={channel.pronouns?.join(' · ') ?? null}
+    descriptionHtml={channel.descriptionHtml}
+    subCountText={subCountText}
+    tabs={tabs}
+    selectedTab="home"
+    baseUrl={`/channel/${ucid}`}
+  />
+  {posts.length > 0 && (
+    <section class="posts">
+      <h2 class="section-title">{postsLabel}</h2>
+      <div class="posts-grid">
+        {posts.map(({ post }) => (
+          <PostCard post={post} />
+        ))}
+      </div>
+    </section>
+  )}
+  <FeedSection title={popularLabel} locale={locale} items={items} />
+</BaseLayout>
+
+<style>
+  .posts {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin: 50px 0;
+  }
+
+  .section-title {
+    margin: 0;
+    font-family: var(--font-condensed);
+    font-size: var(--font-size-xl);
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(331px, 1fr));
+    gap: 17px;
+  }
+</style>

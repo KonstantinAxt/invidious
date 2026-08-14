@@ -13,6 +13,7 @@ const placeholder = await translate(locale, 'search')
 
 <search class="search-box">
   <form action="/search" method="get">
+    <Icon name="search" size={24} />
     <input
       id="searchbox"
       type="search"
@@ -21,25 +22,28 @@ const placeholder = await translate(locale, 'search')
       placeholder={placeholder}
       autocomplete="off"
     />
-    <button type="submit" aria-label={placeholder}>
-      <Icon name="search" size={18} />
-    </button>
+    <span class="mic" aria-hidden="true"><Icon name="mic" size={24} /></span>
   </form>
 </search>
 
 <style>
   .search-box {
     flex: 1;
-    max-width: 640px;
+    max-width: 727px;
+    height: 40px;
+    display: flex;
+    align-items: center;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-full);
-    overflow: hidden;
-    background: var(--color-surface);
+    color: var(--color-icon-muted);
   }
 
   form {
     display: flex;
     align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding-left: 15px;
   }
 
   .search-box:focus-within {
@@ -49,28 +53,24 @@ const placeholder = await translate(locale, 'search')
   input {
     flex: 1;
     min-width: 0;
-    padding: var(--space-2) var(--space-4);
     border: 0;
     background: transparent;
     color: var(--color-text);
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-title);
     outline: none;
   }
 
-  button {
+  input::placeholder {
+    color: var(--color-text-placeholder);
+    letter-spacing: -0.18px;
+  }
+
+  .mic {
+    flex-shrink: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-right: var(--space-1);
-    padding: var(--space-1) var(--space-2);
-    border: 0;
-    border-radius: var(--radius-full);
-    background: transparent;
-    color: var(--color-text-secondary);
-    cursor: pointer;
-  }
-
-  button:hover {
-    color: var(--color-text);
+    width: 64px;
+    height: 40px;
   }
 </style>

@@ -1,0 +1,199 @@
+---
+import Icon from '../components/icons/Icon.astro'
+import PlaylistItemRow from '../components/PlaylistItemRow.astro'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { formatDuration } from '../lib/format'
+import { detectLocale, translate } from '../lib/i18n'
+import { getPlaylist, resolveApiUrl } from '../lib/invidious-api'
+import { pickThumbnail } from '../lib/media'
+import { shortNumber } from '../lib/numbers'
+
+const plid = Astro.url.searchParams.get('list')
+if (!plid) {
+  return Astro.redirect('/')
+}
+
+const locale = detectLocale(Astro.request.headers.get('accept-language'))
+const [playAllLabel, shareLabel, videosLabel, viewsLabel, durationLabel] = await Promise.all([
+  translate(locale, 'Play All'),
+  translate(locale, 'Share'),
+  translate(locale, 'videos'),
+  translate(locale, 'views'),
+  translate(locale, 'duration'),
+])
+
+const playlist = await getPlaylist(plid)
+const totalSeconds = playlist.videos.reduce((sum, video) => sum + video.lengthSeconds, 0)
+
+const rows = playlist.videos.map((video) => ({
+  video,
+  thumbnailSrc: resolveApiUrl(pickThumbnail(video.videoThumbnails)?.url ?? ''),
+}))
+---
+
+<BaseLayout title={playlist.title} locale={locale} activeHref="/">
+  <header class="playlist-header">
+    <a class="thumb" href={`/watch?v=${playlist.videos[0]?.videoId ?? ''}`} aria-label={playlist.title}>
+      {playlist.playlistThumbnail && (
+        <img src={resolveApiUrl(playlist.playlistThumbnail)} alt="" />
+      )}
+    </a>
+    <div class="info">
+      <h1 class="title">{playlist.title}</h1>
+      <div class="meta">
+        <a class="author-avatar" href={playlist.authorUrl} aria-label={playlist.author}>
+          {playlist.authorThumbnails[0] && (
+            <img src={resolveApiUrl(playlist.authorThumbnails[0].url)} alt="" loading="lazy" />
+          )}
+        </a>
+        <a class="author" href={playlist.authorUrl}>{playlist.author}</a>
+      </div>
+      <div class="stats">
+        <span><strong>{shortNumber(playlist.viewCount)}</strong> {viewsLabel}</span>
+        <span><strong>{shortNumber(playlist.videoCount)}</strong> {videosLabel}</span>
+        <span><strong>{formatDuration(totalSeconds)}</strong> {durationLabel}</span>
+      </div>
+      <div class="actions">
+        <span class="pill play-all">
+          <Icon name="play" size={24} />
+          {playAllLabel}
+        </span>
+        <span class="pill">
+          <Icon name="share" size={24} />
+          {shareLabel}
+        </span>
+        <span class="pill like-pill">
+          <Icon name="like" size={24} />
+          <span class="divider" />
+          <Icon name="dislike" size={24} />
+        </span>
+      </div>
+    </div>
+  </header>
+  <div class="items">
+    {rows.map((row) => (
+      <PlaylistItemRow video={row.video} thumbnailSrc={row.thumbnailSrc} locale={locale} />
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .playlist-header {
+    display: flex;
+    gap: 24px;
+    padding: 24px;
+    margin-top: var(--space-4);
+    border: 1px solid var(--color-border-panel);
+    border-radius: 24px;
+  }
+
+  .thumb {
+    flex-shrink: 0;
+    width: 332px;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-thumb);
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .title {
+    margin: 0;
+    font-size: var(--font-size-title);
+    font-weight: 500;
+    line-height: 25px;
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .author-avatar {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+
+  .author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .author {
+    color: var(--color-text);
+    font-size: var(--font-size-md);
+    line-height: 28.3px;
+  }
+
+  .stats {
+    display: flex;
+    gap: 24px;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-md);
+  }
+
+  .stats strong {
+    color: var(--color-text);
+    font-weight: 400;
+  }
+
+  .actions {
+    display: flex;
+    gap: 15px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 16px;
+    border-radius: 23px;
+    background: var(--color-fill-button);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+  }
+
+  .play-all {
+    padding: 0 24px 0 16px;
+    background: #ffffff;
+    color: #000000;
+  }
+
+  .like-pill {
+    gap: 14px;
+    border-radius: 100px;
+  }
+
+  .divider {
+    width: 1.286px;
+    height: 28px;
+    background: var(--color-border-hairline);
+  }
+
+  .items {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-top: var(--space-5);
+  }
+</style>
