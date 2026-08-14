@@ -177,12 +177,14 @@ we're going to need to do it here in order to allow for translations.
                 <% if !playlists.empty? %>
                     <form data-onsubmit="return_false" class="pure-form pure-form-stacked" action="/playlist_ajax?action=add_video" method="post" target="_blank">
                         <div class="pure-control-group">
-                            <label for="playlist_id"><%= I18n.translate(locale, "Add to playlist: ") %></label>
-                            <select style="width:100%" name="playlist_id" id="playlist_id">
-                                <% playlists.each do |plid, playlist_title| %>
-                                    <option data-plid="<%= plid %>" value="<%= plid %>" <%= "selected" if user.preferences.default_playlist == plid %>><%= HTML.escape(playlist_title) %></option>
-                                <% end %>
-                            </select>
+                            <div class="field label border small" style="width:100%">
+                                <select name="playlist_id" id="playlist_id">
+                                    <% playlists.each do |plid, playlist_title| %>
+                                        <option data-plid="<%= plid %>" value="<%= plid %>" <%= "selected" if user.preferences.default_playlist == plid %>><%= HTML.escape(playlist_title) %></option>
+                                    <% end %>
+                                </select>
+                                <label for="playlist_id"><%= I18n.translate(locale, "Add to playlist: ") %></label>
+                            </div>
                         </div>
 
                         <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">

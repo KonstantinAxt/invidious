@@ -16,12 +16,14 @@
                     </div>
 
                     <div class="pure-control-group">
-                        <label for="privacy"><%= I18n.translate(locale, "Playlist privacy") %> :</label>
-                        <select name="privacy" id="privacy">
-                            <% PlaylistPrivacy.names.each do |option| %>
-                                <option value="<%= option %>" <% if option == "Public" %> selected <% end %>><%= I18n.translate(locale,  option) %></option>
-                            <% end %>
-                        </select>
+                        <div class="field label border small">
+                            <select name="privacy" id="privacy">
+                                <% PlaylistPrivacy.names.each do |option| %>
+                                    <option value="<%= option %>" <% if option == "Public" %> selected <% end %>><%= I18n.translate(locale,  option) %></option>
+                                <% end %>
+                            </select>
+                            <label for="privacy"><%= I18n.translate(locale, "Playlist privacy") %> :</label>
+                        </div>
                     </div>
 
                     <div class="pure-controls">

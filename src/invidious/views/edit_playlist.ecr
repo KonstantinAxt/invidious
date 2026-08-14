@@ -38,11 +38,13 @@
                 <%= HTML.escape(playlist.author) %> |
                 <%= I18n.translate_count(locale, "generic_videos_count", playlist.video_count) %> |
             </b>
-            <select name="privacy">
-            <%- {"Public", "Unlisted", "Private"}.each do |option| -%>
-                <option value="<%= option %>" <% if option == playlist.privacy.to_s %>selected<% end %>><%= I18n.translate(locale, option) %></option>
-            <%- end -%>
-            </select>
+            <div class="field border small">
+                <select name="privacy">
+                <%- {"Public", "Unlisted", "Private"}.each do |option| -%>
+                    <option value="<%= option %>" <% if option == playlist.privacy.to_s %>selected<% end %>><%= I18n.translate(locale, option) %></option>
+                <%- end -%>
+                </select>
+            </div>
         </div>
     </div>
 
