@@ -1,0 +1,64 @@
+---
+import { translate } from '../lib/i18n'
+import Icon from './icons/Icon.astro'
+
+interface Props {
+  locale: string
+  videoId: string
+  playlist?: { list: string; index?: number }
+  listen?: boolean
+}
+
+const { locale, videoId, playlist, listen = true } = Astro.props
+
+const [watchOnYoutube, audioMode, switchInstance] = await Promise.all([
+  translate(locale, 'videoinfo_watch_on_youTube'),
+  translate(locale, 'Audio mode'),
+  translate(locale, 'Switch Invidious Instance'),
+])
+
+const params = new URLSearchParams({ v: videoId })
+if (playlist) {
+  params.set('list', playlist.list)
+  if (playlist.index !== undefined) params.set('index', String(playlist.index))
+}
+
+const listenParams = new URLSearchParams(params)
+listenParams.set('listen', '1')
+---
+
+<div class="context-buttons">
+  <a href={`https://www.youtube.com/watch?v=${videoId}`} title={watchOnYoutube}>
+    <Icon name="youtube" size={18} label={watchOnYoutube} />
+  </a>
+  {listen && (
+    <a href={`/watch?${listenParams}`} title={audioMode}>
+      <Icon name="headset" size={18} label={audioMode} />
+    </a>
+  )}
+  <a href={`https://redirect.invidious.io/watch?${params}`} title={switchInstance}>
+    <Icon name="switch" size={18} label={switchInstance} />
+  </a>
+</div>
+
+<style>
+  .context-buttons {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+  }
+
+  a:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+  }
+</style>

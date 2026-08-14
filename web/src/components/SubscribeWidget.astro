@@ -1,0 +1,43 @@
+---
+import { translate } from '../lib/i18n'
+
+interface Props {
+  locale: string
+  ucid: string
+  subCountText: string
+  referer?: string
+}
+
+const { locale, ucid, subCountText, referer } = Astro.props
+const label = await translate(locale, 'Subscribe')
+const href = `/login?referer=${encodeURIComponent(referer ?? `/channel/${ucid}`)}`
+---
+
+<a class="subscribe-widget" href={href}>
+  {label}
+  {subCountText && <span class="count">{subCountText}</span>}
+</a>
+
+<style>
+  .subscribe-widget {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    background: var(--color-accent);
+    color: var(--color-badge-text);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+  }
+
+  .subscribe-widget:hover {
+    background: var(--color-accent-strong);
+    text-decoration: none;
+  }
+
+  .count {
+    opacity: 0.85;
+    font-weight: 400;
+  }
+</style>

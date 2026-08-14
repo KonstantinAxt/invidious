@@ -2,7 +2,7 @@
 
 ## Commits
 
-- **Never commit. The user commits manually.** You may stage files (`git add`) and leave a clean working tree ready, but never run `git commit`. If a commit is needed, stop and ask.
+- **Commit only when the user explicitly says so.** You may stage files (`git add`) and leave a clean working tree ready at any time, but never run `git commit` unless the user has explicitly instructed you to commit in that moment.
 - `master` is protected — work lands on feature branches and via PRs. Current work branch: `astro-frontend` (no push, no PR until flagged as ready).
 
 ## Project layout
@@ -16,7 +16,14 @@
 - `docker compose -p invidious -f /tmp/invidious-compose-3000.yml up -d` — repo's compose file with a random `hmac_key` substituted (the shipped `CHANGE_ME!!` is hard-rejected at startup by `src/invidious/config.cr:275-278`).
 - Serves on `http://localhost:3000`; `web/.env` → `INVIDIOUS_API_BASE_URL=http://localhost:3000`.
 
-## Testing the frontend
+## Frontend (web/) verification
 
-- `cd web && npx playwright test` — boots its own dev server (must run from `web/`, else npx resolves the wrong package).
-- `npm run dev` / `npm run build` inside `web/`.
+From `web/`, run `npm run check && npm run typecheck` before handing work off:
+
+- `npm run check` — Biome lint + format
+- `npm run typecheck` — `astro check`
+- `npm run build-storybook` — Storybook static build
+- `npx playwright test` — e2e (boots its own dev server on :4321)
+- `npm run storybook` — Storybook dev on :6006 (manual visual check of components)
+
+Must run from `web/` (else npx resolves the wrong package). `npm run dev` / `npm run build` serve the app itself.

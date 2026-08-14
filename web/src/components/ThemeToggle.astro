@@ -1,0 +1,67 @@
+---
+import { translate } from '../lib/i18n'
+import Icon from './icons/Icon.astro'
+
+interface Props {
+  locale: string
+}
+
+const { locale } = Astro.props
+const label = await translate(locale, 'toggle_theme')
+---
+
+<button type="button" class="theme-toggle" data-theme-toggle aria-label={label}>
+  <Icon name="moon" size={18} />
+</button>
+
+<script>
+  const STORAGE_KEY = 'invidious:theme'
+  const root = document.documentElement
+  const button = document.querySelector<HTMLButtonElement>('[data-theme-toggle]')
+
+  type Theme = 'auto' | 'light' | 'dark'
+
+  function currentTheme(): Theme {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    return stored === 'light' || stored === 'dark' ? stored : 'auto'
+  }
+
+  function apply(theme: Theme) {
+    if (theme === 'auto') {
+      delete root.dataset.theme
+      localStorage.removeItem(STORAGE_KEY)
+    } else {
+      root.dataset.theme = theme
+      localStorage.setItem(STORAGE_KEY, theme)
+    }
+  }
+
+  apply(currentTheme())
+
+  button?.addEventListener('click', () => {
+    const next: Theme =
+      currentTheme() === 'auto' ? 'light' : currentTheme() === 'light' ? 'dark' : 'auto'
+    apply(next)
+  })
+</script>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+  }
+
+  .theme-toggle:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+  }
+</style>

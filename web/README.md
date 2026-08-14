@@ -19,10 +19,17 @@ self-contained project in this directory, added as a new consumer of the API.
   `invidious-api.ts` keeps an in-process TTL cache (60s per endpoint+params) to
   collapse repeat navigations without adding Redis/CDN infra — sized for a
   single-user self-hosted instance.
+- **Components**: `src/components/` holds presentational, props-driven
+  components (design tokens in `src/styles/tokens.css`, vanilla CSS). Pages
+  fetch data and resolve URLs; components never fetch. i18n: locale JSONs are
+  vendored into `locales/` (see below), loaded lazily per render; `locale` is
+  passed down as a prop.
 - **Out of scope for now**: auth/session/cookie forwarding through the BFF —
   only unauthenticated endpoints are consumed. Needed before porting any
-  login-gated page (preferences, playlists, subscriptions…). See
-  [PAGES.md](PAGES.md) for the full porting checklist.
+  login-gated page (preferences, playlists, subscriptions…). The 857-line
+  `player.js` (video.js) port is also out of scope — `Player.astro` is a
+  markup-only native `<video>` wrapper. See [PAGES.md](PAGES.md) for the full
+  porting checklist.
 
 ## Setup
 
@@ -64,6 +71,29 @@ npm run build        # production build (node adapter, standalone)
 npm run preview      # serve the production build
 ```
 
+## Storybook
+
+```sh
+npm run storybook         # dev UI on http://localhost:6006 — browse components per story
+npm run build-storybook   # static build (storybook-static/)
+```
+
+Stories live next to their components (`src/**/*.stories.tsx`, CSF3). Components
+are dumb (props in, markup out), so stories pass plain fixture data from
+`src/stories/fixtures.ts` — no env, no fetches. SSR-rendered stories don't
+hot-update on arg changes; rebuild to see edits.
+
+## Linting, formatting, type checking
+
+```sh
+npm run check       # Biome: lint + format (biome check .)
+npm run format      # Biome: format in place
+npm run typecheck   # astro check (type diagnostics for .astro/.ts)
+```
+
+Biome covers TS/TSX/JS and `.astro` (experimental support, config in
+`biome.json`); `locales/` and build outputs are excluded.
+
 ## Tests
 
 ```sh
@@ -74,7 +104,17 @@ The config loads `.env` into the test process and sets `ASTRO_DEV_BACKGROUND=1` 
 astro runs in the foreground (otherwise it auto-daemonizes in agent environments
 and Playwright sees an early exit).
 
-One smoke test exists (`tests/trending.spec.ts`) against the one ported page
-(renders the trending feed, cross-checks real video data against the raw
-`/api/v1/trending` JSON). As each page from [PAGES.md](PAGES.md) gets ported,
-it gets one Playwright test alongside it — the suite grows with the port.
+Two specs cover the one ported page: `tests/trending.spec.ts` (real data
+cross-checked against the raw `/api/v1/trending` JSON) and
+`tests/components.spec.ts` (navbar + video grid rendering). As each page from
+[PAGES.md](PAGES.md) gets ported, it gets one Playwright test alongside it —
+the suite grows with the port.
+
+## Syncing locales
+
+The 63 locale JSONs in `locales/` are vendored from the repo root (Crystal's
+`locales/`). Re-sync manually when upstream translations change:
+
+```sh
+cp ../../locales/*.json locales/
+```

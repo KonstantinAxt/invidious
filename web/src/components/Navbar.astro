@@ -1,0 +1,60 @@
+---
+import { translate } from '../lib/i18n'
+import SearchBox from './SearchBox.astro'
+import ThemeToggle from './ThemeToggle.astro'
+
+interface Props {
+  locale: string
+  query?: string
+  showSearch?: boolean
+}
+
+const { locale, query, showSearch = true } = Astro.props
+const loginLabel = await translate(locale, 'Log in')
+---
+
+<header class="navbar">
+  <a class="brand" href="/">Invidious</a>
+  {showSearch && <SearchBox locale={locale} query={query} />}
+  <nav class="navbar-right">
+    <ThemeToggle locale={locale} />
+    <a class="login" href="/login">{loginLabel}</a>
+  </nav>
+</header>
+
+<style>
+  .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    height: var(--navbar-height);
+    padding: 0 var(--space-4);
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .brand {
+    font-weight: 700;
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+  }
+
+  .brand:hover {
+    text-decoration: none;
+  }
+
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-left: auto;
+  }
+
+  .login {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+</style>

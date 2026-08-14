@@ -1,0 +1,43 @@
+---
+import type { SearchHashtagShape } from '../../lib/api-types'
+import { translateCount } from '../../lib/i18n'
+
+interface Props {
+  hashtag: SearchHashtagShape
+  locale: string
+}
+
+const { hashtag, locale } = Astro.props
+
+const [videos, channels] = await Promise.all([
+  translateCount(locale, 'generic_videos_count', hashtag.videoCount, 'short'),
+  translateCount(locale, 'generic_channels_count', hashtag.channelCount, 'short'),
+])
+---
+
+<article class="hashtag-card">
+  <a class="title" href={hashtag.url}>{hashtag.title}</a>
+  <div class="stats">{videos}</div>
+  <div class="stats">{channels}</div>
+</article>
+
+<style>
+  .hashtag-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .title {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .stats {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+</style>

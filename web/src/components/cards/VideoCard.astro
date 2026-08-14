@@ -1,0 +1,124 @@
+---
+import type { Video } from '../../lib/api-types'
+import { formatDuration, formatPremiere, formatPublished, formatViewCount } from '../../lib/format'
+import { translate } from '../../lib/i18n'
+import Icon from '../icons/Icon.astro'
+
+interface Props {
+  video: Video
+  locale: string
+  thumbnailSrc?: string
+  href?: string
+}
+
+const { video, locale, thumbnailSrc, href } = Astro.props
+const watchHref = href ?? `/watch?v=${video.videoId}`
+
+const [duration, published, views, liveLabel] = await Promise.all([
+  Promise.resolve(formatDuration(video.lengthSeconds)),
+  video.isUpcoming
+    ? formatPremiere(locale, video.published)
+    : formatPublished(locale, video.published),
+  formatViewCount(locale, video.viewCount),
+  translate(locale, 'LIVE'),
+])
+---
+
+<article class="video-card">
+  <a class="thumb" href={watchHref} aria-label={video.title}>
+    {thumbnailSrc && <img src={thumbnailSrc} alt="" loading="lazy" />}
+    {video.liveNow ? (
+      <span class="badge live">{liveLabel}</span>
+    ) : (
+      duration && <span class="badge">{duration}</span>
+    )}
+  </a>
+  <div class="details">
+    <a class="title" href={watchHref}>{video.title}</a>
+    <div class="channel">
+      <a href={video.authorUrl}>{video.author}</a>
+      {video.authorVerified && <Icon name="check" size={14} />}
+    </div>
+    <p class="video-data">
+      {views} {published}
+    </p>
+  </div>
+</article>
+
+<style>
+  .video-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .thumb {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .badge {
+    position: absolute;
+    right: var(--space-2);
+    bottom: var(--space-2);
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-sm);
+    background: var(--color-badge-bg);
+    color: var(--color-badge-text);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    line-height: 1.7;
+  }
+
+  .badge.live {
+    background: var(--color-live);
+  }
+
+  .details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--color-text);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .title:hover {
+    text-decoration: none;
+  }
+
+  .channel {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .channel a {
+    color: inherit;
+  }
+
+  .video-data {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+</style>

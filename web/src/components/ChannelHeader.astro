@@ -1,0 +1,221 @@
+---
+import { translate } from '../lib/i18n'
+import Icon from './icons/Icon.astro'
+import SubscribeWidget from './SubscribeWidget.astro'
+
+interface Props {
+  locale: string
+  ucid: string
+  author: string
+  verified: boolean
+  avatarSrc?: string
+  bannerSrc?: string
+  pronouns?: string | null
+  descriptionHtml: string
+  subCountText: string
+  tabs: { id: string; labelKey: string; href: string }[]
+  selectedTab: string
+  baseUrl: string
+  sortBy?: string
+  sortOptions?: { id: string; labelKey: string }[]
+}
+
+const {
+  locale,
+  ucid,
+  author,
+  verified,
+  avatarSrc,
+  bannerSrc,
+  pronouns,
+  descriptionHtml,
+  subCountText,
+  tabs,
+  selectedTab,
+  baseUrl,
+  sortBy,
+  sortOptions,
+} = Astro.props
+
+const [rss, onYouTube, switchInstance, tabLabels, sortLabels] = await Promise.all([
+  translate(locale, 'generic_button_rss'),
+  translate(locale, 'View channel on YouTube'),
+  translate(locale, 'Switch Invidious Instance'),
+  Promise.all(tabs.map((tab) => translate(locale, tab.labelKey))),
+  Promise.all((sortOptions ?? []).map((option) => translate(locale, option.labelKey))),
+])
+---
+
+<header class="channel-header">
+  {bannerSrc && <img class="banner" src={bannerSrc} alt="" />}
+  <div class="channel-main">
+    {avatarSrc && <img class="avatar" src={avatarSrc} alt="" />}
+    <div class="channel-info">
+      <h1 class="name">
+        {author}
+        {verified && <Icon name="check" size={20} />}
+      </h1>
+      {pronouns && <div class="pronouns">{pronouns}</div>}
+      <div class="actions">
+        <SubscribeWidget locale={locale} ucid={ucid} subCountText={subCountText} referer={baseUrl} />
+        <a class="icon-link" href={`/feed/channel/${ucid}`} title={rss}>
+          <Icon name="rss" size={18} label={rss} />
+        </a>
+        <a
+          class="icon-link"
+          href={`https://www.youtube.com/channel/${ucid}`}
+          title={onYouTube}
+        >
+          <Icon name="youtube" size={18} label={onYouTube} />
+        </a>
+        <a
+          class="icon-link"
+          href={`https://redirect.invidious.io/channel/${ucid}`}
+          title={switchInstance}
+        >
+          <Icon name="switch" size={18} label={switchInstance} />
+        </a>
+      </div>
+    </div>
+  </div>
+  {descriptionHtml && <div class="description" set:html={descriptionHtml} />}
+  <nav class="tabs">
+    {tabs.map((tab, index) => (
+      <a
+        href={tab.href}
+        class:list={['tab', { selected: tab.id === selectedTab }]}
+        aria-current={tab.id === selectedTab ? 'page' : undefined}
+      >
+        {tabLabels[index]}
+      </a>
+    ))}
+  </nav>
+  {sortOptions && sortOptions.length > 0 && (
+    <div class="sorts">
+      {sortOptions.map((option, index) => (
+        <a
+          href={`${baseUrl}&sort_by=${option.id}`}
+          class:list={['sort', { selected: option.id === sortBy }]}
+        >
+          {sortLabels[index]}
+        </a>
+      ))}
+    </div>
+  )}
+</header>
+
+<style>
+  .channel-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .banner {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+
+  .channel-main {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+  }
+
+  .name {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .pronouns {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  .icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+  }
+
+  .icon-link:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+  }
+
+  .description {
+    max-width: 65ch;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .tab {
+    padding: var(--space-2) var(--space-3);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+  }
+
+  .tab:hover {
+    text-decoration: none;
+    color: var(--color-text);
+  }
+
+  .tab.selected {
+    color: var(--color-text);
+    box-shadow: inset 0 -2px 0 var(--color-text);
+  }
+
+  .sorts {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .sort {
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .sort:hover {
+    text-decoration: none;
+    background: var(--color-surface-hover);
+  }
+
+  .sort.selected {
+    background: var(--color-accent);
+    color: var(--color-badge-text);
+  }
+</style>

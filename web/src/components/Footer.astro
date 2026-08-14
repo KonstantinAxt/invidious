@@ -1,0 +1,54 @@
+---
+import { translate } from '../lib/i18n'
+
+interface Props {
+  locale: string
+}
+
+const { locale } = Astro.props
+
+const [sourceCode, docs, released, jsLicense, privacy, donate] = await Promise.all([
+  translate(locale, 'footer_source_code'),
+  translate(locale, 'footer_documentation'),
+  translate(locale, 'Released under the AGPLv3 on Github.'),
+  translate(locale, 'View JavaScript license information.'),
+  translate(locale, 'View privacy policy.'),
+  translate(locale, 'footer_donate_page'),
+])
+---
+
+<footer class="footer">
+  <nav class="footer-links">
+    <a href="https://github.com/iv-org/invidious">{sourceCode}</a>
+    <a href="https://docs.invidious.io">{docs}</a>
+    <a href="/privacy">{privacy}</a>
+    <a href="/licenses">{jsLicense}</a>
+    <a href="https://invidious.io/donate">{donate}</a>
+  </nav>
+  <p class="footer-note">{released}</p>
+</footer>
+
+<style>
+  .footer {
+    margin-top: var(--space-6);
+    padding: var(--space-5) var(--space-4);
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+  }
+
+  .footer-note {
+    max-width: var(--content-max-width);
+    margin: var(--space-3) auto 0;
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-xs);
+  }
+</style>

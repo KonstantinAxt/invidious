@@ -1,0 +1,44 @@
+---
+import type { GridItem } from '../lib/api-types'
+import ChannelCard from './cards/ChannelCard.astro'
+import HashtagCard from './cards/HashtagCard.astro'
+import ParseErrorCard from './cards/ParseErrorCard.astro'
+import PlaylistCard from './cards/PlaylistCard.astro'
+import VideoCard from './cards/VideoCard.astro'
+
+interface Props {
+  items: GridItem[]
+  locale: string
+}
+
+const { items, locale } = Astro.props
+---
+
+<div class="video-grid">
+  {items.map((item) => {
+    switch (item.kind) {
+      case 'video':
+        return <VideoCard video={item.video} locale={locale} thumbnailSrc={item.thumbnailSrc} />
+      case 'channel':
+        return <ChannelCard channel={item.channel} locale={locale} avatarSrc={item.avatarSrc} />
+      case 'playlist':
+        return (
+          <PlaylistCard playlist={item.playlist} locale={locale} thumbnailSrc={item.thumbnailSrc} />
+        )
+      case 'hashtag':
+        return <HashtagCard hashtag={item.hashtag} locale={locale} />
+      case 'parse-error':
+        return <ParseErrorCard message={item.message} locale={locale} />
+      default:
+        return null
+    }
+  })}
+</div>
+
+<style>
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--space-5);
+  }
+</style>

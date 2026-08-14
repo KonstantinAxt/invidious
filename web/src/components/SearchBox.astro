@@ -1,0 +1,76 @@
+---
+import { translate } from '../lib/i18n'
+import Icon from './icons/Icon.astro'
+
+interface Props {
+  locale: string
+  query?: string
+}
+
+const { locale, query = '' } = Astro.props
+const placeholder = await translate(locale, 'search')
+---
+
+<search class="search-box">
+  <form action="/search" method="get">
+    <input
+      id="searchbox"
+      type="search"
+      name="q"
+      value={query}
+      placeholder={placeholder}
+      autocomplete="off"
+    />
+    <button type="submit" aria-label={placeholder}>
+      <Icon name="search" size={18} />
+    </button>
+  </form>
+</search>
+
+<style>
+  .search-box {
+    flex: 1;
+    max-width: 640px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+
+  form {
+    display: flex;
+    align-items: center;
+  }
+
+  .search-box:focus-within {
+    border-color: var(--color-accent);
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-2) var(--space-4);
+    border: 0;
+    background: transparent;
+    color: var(--color-text);
+    font-size: var(--font-size-md);
+    outline: none;
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    border: 0;
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+  }
+
+  button:hover {
+    color: var(--color-text);
+  }
+</style>

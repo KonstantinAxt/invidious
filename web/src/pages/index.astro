@@ -1,67 +1,21 @@
 ---
-import { getTrending, resolveApiUrl, type Video } from '../lib/invidious-api';
+import VideoGrid from '../components/VideoGrid.astro'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import type { SearchVideoShape } from '../lib/api-types'
+import { detectLocale, translate } from '../lib/i18n'
+import { getTrending, resolveApiUrl } from '../lib/invidious-api'
+import { resolveGridItems } from '../lib/media'
 
-const videos: Video[] = await getTrending();
+const locale = detectLocale(Astro.request.headers.get('accept-language'))
+const title = await translate(locale, 'Trending')
 
-function thumbnailOf(video: Video): string | undefined {
-  const thumb = video.videoThumbnails.find((t) => t.quality === 'medium')
-    ?? video.videoThumbnails[0];
-  return thumb ? resolveApiUrl(thumb.url) : undefined;
-}
+const videos = await getTrending()
+const items = resolveGridItems(videos as SearchVideoShape[], resolveApiUrl)
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Invidious — Trending</title>
-    <style>
-      body {
-        font-family: system-ui, sans-serif;
-        margin: 0 auto;
-        max-width: 48rem;
-        padding: 1rem;
-      }
-      ul {
-        list-style: none;
-        padding: 0;
-      }
-      li {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
-      }
-      img {
-        border-radius: 0.5rem;
-        width: 10rem;
-        height: auto;
-      }
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
-      .title {
-        font-weight: 600;
-      }
-      .channel {
-        color: #555;
-        font-size: 0.9rem;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Trending</h1>
-    <ul>
-      {videos.map((video) => (
-        <li>
-          {thumbnailOf(video) ? <img src={thumbnailOf(video)} alt="" loading="lazy" /> : null}
-          <div>
-            <a class="title" href={`/watch?v=${video.videoId}`}>{video.title}</a>
-            <div class="channel">{video.author}</div>
-          </div>
-        </li>
-      ))}
-    </ul>
-  </body>
-</html>
+<BaseLayout title={title} locale={locale}>
+  <main class="page-container">
+    <h1>{title}</h1>
+    <VideoGrid items={items} locale={locale} />
+  </main>
+</BaseLayout>

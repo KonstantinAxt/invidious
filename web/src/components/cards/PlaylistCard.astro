@@ -1,0 +1,99 @@
+---
+import type { SearchPlaylistShape } from '../../lib/api-types'
+import { translateCount } from '../../lib/i18n'
+import Icon from '../icons/Icon.astro'
+
+interface Props {
+  playlist: SearchPlaylistShape
+  locale: string
+  thumbnailSrc?: string
+}
+
+const { playlist, locale, thumbnailSrc } = Astro.props
+const href = playlist.playlistId.startsWith('RD')
+  ? `/mix?list=${playlist.playlistId}`
+  : `/playlist?list=${playlist.playlistId}`
+
+const videoCount = await translateCount(
+  locale,
+  'generic_videos_count',
+  playlist.videoCount,
+  'short',
+)
+---
+
+<article class="playlist-card">
+  <a class="thumb" href={href} aria-label={playlist.title}>
+    {thumbnailSrc && <img src={thumbnailSrc} alt="" loading="lazy" />}
+    <span class="badge">{videoCount}</span>
+  </a>
+  <div class="details">
+    <a class="title" href={href}>{playlist.title}</a>
+    <div class="author">
+      <a href={playlist.authorUrl}>{playlist.author}</a>
+      {playlist.authorVerified && <Icon name="check" size={14} />}
+    </div>
+  </div>
+</article>
+
+<style>
+  .playlist-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .thumb {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .badge {
+    position: absolute;
+    right: var(--space-2);
+    bottom: var(--space-2);
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-sm);
+    background: var(--color-badge-bg);
+    color: var(--color-badge-text);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    line-height: 1.7;
+  }
+
+  .title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--color-text);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .title:hover {
+    text-decoration: none;
+  }
+
+  .author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .author a {
+    color: inherit;
+  }
+</style>

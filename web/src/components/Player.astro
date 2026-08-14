@@ -1,0 +1,50 @@
+---
+interface Props {
+  poster: string
+  sources: { src: string; type: string }[]
+  captions?: { src: string; label: string; default?: boolean }[]
+  controls?: boolean
+  autoplay?: boolean
+  loop?: boolean
+  preload?: 'auto' | 'none'
+}
+
+const {
+  poster,
+  sources,
+  captions = [],
+  controls = true,
+  autoplay = false,
+  loop = false,
+  preload = 'auto',
+} = Astro.props
+---
+
+<video
+  class="player"
+  controls={controls}
+  autoplay={autoplay}
+  loop={loop}
+  preload={preload}
+  poster={poster}
+  playsinline
+>
+  {sources.map((source) => <source src={source.src} type={source.type} />)}
+  {captions.map((caption) => (
+    <track
+      src={caption.src}
+      kind="captions"
+      label={caption.label}
+      default={caption.default}
+    />
+  ))}
+</video>
+
+<style>
+  .player {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-md);
+    background: #000;
+  }
+</style>

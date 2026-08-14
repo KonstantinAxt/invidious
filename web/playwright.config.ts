@@ -1,8 +1,8 @@
-import { defineConfig } from '@playwright/test';
-import { existsSync } from 'node:fs';
+import { existsSync } from 'node:fs'
+import { defineConfig } from '@playwright/test'
 
 if (existsSync('.env')) {
-  process.loadEnvFile('.env');
+  process.loadEnvFile('.env')
 }
 
 export default defineConfig({
@@ -18,4 +18,4 @@ export default defineConfig({
     timeout: 120_000,
     env: { ...process.env, ASTRO_DEV_BACKGROUND: '1' },
   },
-});
+})
