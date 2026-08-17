@@ -66,6 +66,21 @@ docker compose up -d
 >   docker-compose.yml > /tmp/invidious-compose.yml
 > docker compose -p invidious -f /tmp/invidious-compose.yml up -d
 > ```
+
+## Seeding the dev database
+
+`seed/invidious-seed.sql` is a dump of a real Invidious instance (m720q over
+Tailscale): 1 user, 82 channels, 4 playlists, 1707 channel-video rows. It is
+sanitized for dev use — the original email/password and all live session
+tokens were replaced, so it is safe to commit.
+
+To (re)seed the local dev database — **wipes and rebuilds the dev DB**:
+
+```sh
+./seed/restore-seed.sh
+```
+
+Seeded account login: `dev@invidious.local` / `invidious`.
 >
 > **Companion**: `/api/v1/videos/:id` (the watch page) requires
 > invidious-companion. Add it to the copy's services:
