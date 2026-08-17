@@ -1,37 +1,89 @@
 ---
 import { translate } from '../lib/i18n'
+import { ROUTES } from '../lib/routes'
 import Icon from './icons/Icon.astro'
+
+interface SidebarItem {
+  labelKey: string
+  icon: string
+  href?: string
+  /** TBD (phase 2, auth): not ported yet — rendered muted, no link. */
+  tbd?: boolean
+}
 
 interface Props {
   locale: string
   activeHref?: string
-  items?: { labelKey: string; icon: string; href: string }[]
+  groups?: SidebarItem[][]
 }
 
-const { locale, activeHref = '/', items } = Astro.props
+const { locale, activeHref = '/', groups } = Astro.props
 
-const defaultItems = [
-  { labelKey: 'Home', icon: 'home', href: '/' },
-  { labelKey: 'search', icon: 'search', href: '/search' },
+const defaultGroups: SidebarItem[][] = [
+  [
+    { labelKey: 'Home', icon: 'home', href: ROUTES.home },
+    { labelKey: 'Search', icon: 'search', href: ROUTES.search },
+    { labelKey: 'Trending', icon: 'trending', href: ROUTES.trendingFeed },
+    { labelKey: 'Popular', icon: 'eye', href: ROUTES.popularFeed },
+  ],
+  // TBD (phase 2, auth): add the href once the pages are ported.
+  [
+    { labelKey: 'History', icon: 'history', tbd: true },
+    { labelKey: 'Watch later', icon: 'clock', tbd: true },
+    { labelKey: 'Liked videos', icon: 'heart', tbd: true },
+    { labelKey: 'Playlists', icon: 'list', tbd: true },
+  ],
+  // TBD (phase 2, auth), like the design's third group.
+  [
+    { labelKey: 'Collections', icon: 'collections', tbd: true },
+    { labelKey: 'Subscriptions', icon: 'rss', tbd: true },
+  ],
 ]
 
-const resolved = items ?? defaultItems
-const labels = await Promise.all(resolved.map((item) => translate(locale, item.labelKey)))
+const resolved = groups ?? defaultGroups
+const labelMap = new Map<string, string>()
+const [soonLabel] = await Promise.all([
+  translate(locale, 'Coming soon'),
+  ...[...new Set(resolved.flat().map((item) => item.labelKey))].map(async (key) => {
+    labelMap.set(key, await translate(locale, key))
+  }),
+])
 ---
 
 <nav class="sidebar" id="app-sidebar">
-  <ul>
-    {
-      resolved.map((item, index) => (
-        <li>
-          <a href={item.href} class:list={['sidebar-item', { active: item.href === activeHref }]}>
-            <Icon name={item.icon} size={24} />
-            <span>{labels[index]}</span>
-          </a>
-        </li>
-      ))
-    }
-  </ul>
+  {
+    resolved.map((group, groupIndex) => (
+      <Fragment>
+        {groupIndex > 0 && <hr class="sidebar-divider" />}
+        <ul>
+          {
+            group.map((item) => {
+              const active = item.href != null && item.href === activeHref
+              return (
+                <li>
+                  {item.href != null ? (
+                    <a
+                      href={item.href}
+                      class:list={['sidebar-item', { active }]}
+                      aria-current={active ? 'page' : undefined}
+                    >
+                      <Icon name={item.icon} size={24} />
+                      <span>{labelMap.get(item.labelKey)}</span>
+                    </a>
+                  ) : (
+                    <span class="sidebar-item tbd" title={soonLabel}>
+                      <Icon name={item.icon} size={24} />
+                      <span>{labelMap.get(item.labelKey)}</span>
+                    </span>
+                  )}
+                </li>
+              )
+            })
+          }
+        </ul>
+      </Fragment>
+    ))
+  }
 </nav>
 
 <style>
@@ -39,6 +91,11 @@ const labels = await Promise.all(resolved.map((item) => translate(locale, item.l
     position: sticky;
     top: var(--navbar-height);
     align-self: start;
+    /* Icons land at x82, aligned with the navbar's 82px content edge. */
+    margin-inline-start: var(--sidebar-offset);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
     width: var(--sidebar-width);
     height: calc(100vh - var(--navbar-height));
     padding: 11px;
@@ -52,6 +109,15 @@ const labels = await Promise.all(resolved.map((item) => translate(locale, item.l
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  /* Hairline between groups, like the design's white 15% lines. */
+  .sidebar-divider {
+    width: 100%;
+    height: 1px;
+    margin: 0;
+    border: 0;
+    background: var(--color-divider);
   }
 
   li {
@@ -71,6 +137,7 @@ const labels = await Promise.all(resolved.map((item) => translate(locale, item.l
     line-height: 23.9px;
   }
 
+  /* Full-width active pill (Figma: 45px tall, radius 10, pink 14%). */
   .sidebar-item::before {
     content: '';
     position: absolute;
@@ -95,6 +162,16 @@ const labels = await Promise.all(resolved.map((item) => translate(locale, item.l
     background: var(--color-accent-fill);
   }
 
+  /* TBD items: visible, muted, no link affordance. */
+  .sidebar-item.tbd {
+    color: var(--color-text-tertiary);
+    cursor: default;
+  }
+
+  .sidebar-item.tbd:hover::before {
+    background: transparent;
+  }
+
   @media (max-width: 900px) {
     .sidebar {
       display: none;
@@ -102,10 +179,11 @@ const labels = await Promise.all(resolved.map((item) => translate(locale, item.l
 
     /* Drawer opened by the navbar menu button (html.sidebar-open). */
     :global(html.sidebar-open) .sidebar {
-      display: block;
+      display: flex;
       /* align-self must not be `start` here: on a fixed element it collapses
          the auto-height stretch (inset) to the content height in Chromium. */
       align-self: auto;
+      margin-inline-start: 0;
       position: fixed;
       top: var(--navbar-height);
       right: 0;

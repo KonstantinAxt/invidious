@@ -65,6 +65,10 @@
   --content-max-width: 1469px;
   --navbar-height: 81px;
   --sidebar-width: 239px;
+  /* Home frame (Figma 4:11081): sidebar left edge x71, content column x369. */
+  --sidebar-offset: 71px;
+  --content-gap: 59px;
+  --page-margin: 82px;
 }
 
 /* Derived light theme */

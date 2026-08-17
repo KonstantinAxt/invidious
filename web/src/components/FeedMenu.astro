@@ -1,5 +1,6 @@
 ---
 import { translate } from '../lib/i18n'
+import { ROUTES } from '../lib/routes'
 
 interface Props {
   locale: string
@@ -9,8 +10,8 @@ interface Props {
 const { locale, items } = Astro.props
 
 const defaultItems = [
-  { labelKey: 'Trending', href: '/feed/trending' },
-  { labelKey: 'Popular', href: '/feed/popular' },
+  { labelKey: 'Trending', href: ROUTES.trendingFeed },
+  { labelKey: 'Popular', href: ROUTES.popularFeed },
 ]
 
 const resolved = items ?? defaultItems

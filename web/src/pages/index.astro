@@ -2,10 +2,8 @@
 import ChipsRow from '../components/ChipsRow.astro'
 import FeedSection from '../components/FeedSection.astro'
 import BaseLayout from '../layouts/BaseLayout.astro'
-import type { SearchVideoShape } from '../lib/api-types'
+import { resolveFeed } from '../lib/feed'
 import { detectLocale, translate } from '../lib/i18n'
-import { getTrending, resolveApiUrl } from '../lib/invidious-api'
-import { resolveGridItems } from '../lib/media'
 
 const locale = detectLocale(Astro.request.headers.get('accept-language'))
 const [title, allLabel, musicLabel, gamingLabel, moviesLabel, liveLabel, newsLabel] =
@@ -19,8 +17,7 @@ const [title, allLabel, musicLabel, gamingLabel, moviesLabel, liveLabel, newsLab
     translate(locale, 'News'),
   ])
 
-const videos = await getTrending()
-const items = resolveGridItems(videos as SearchVideoShape[], resolveApiUrl)
+const { items } = await resolveFeed('trending')
 ---
 
 <BaseLayout title={title} locale={locale} activeHref="/">

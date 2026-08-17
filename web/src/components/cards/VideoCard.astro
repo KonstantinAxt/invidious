@@ -48,7 +48,7 @@ const [duration, published, views, liveLabel] = await Promise.all([
         {video.authorVerified && <Icon name="check" size={16} />}
       </div>
       <p class="video-data">
-        {views} • {published}
+        {views && `${views} • `}{published}
       </p>
     </div>
   </div>

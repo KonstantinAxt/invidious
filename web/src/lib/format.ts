@@ -54,6 +54,11 @@ export async function formatPremiere(
   return translate(locale, 'Premieres in `x`', x)
 }
 
-export async function formatViewCount(locale: string, count: number): Promise<string> {
+export async function formatViewCount(
+  locale: string,
+  count: number | null | undefined,
+): Promise<string> {
+  // Backends can emit null viewCount (nullable views column); render nothing.
+  if (count == null) return ''
   return translateCount(locale, 'generic_views_count', count, 'short')
 }

@@ -29,8 +29,8 @@ self-contained project in this directory, added as a new consumer of the API.
   controls, 16px-rounded thumbnails, Roboto. **Dark is the default theme**;
   light is a derived inversion (`data-theme="light"`), cycled via the
   ThemeToggle. No webfont download — `Roboto, system-ui, sans-serif`.
-- **Ported pages**: home (trending), watch, search, channel (home tab) and
-  playlist. Watch uses API text fields (`viewCountText`/`publishedText`);
+- **Ported pages**: home (trending), watch, search, channel (home tab),
+  playlist, and the `/feed/trending` + `/feed/popular` feeds. Watch uses API text fields (`viewCountText`/`publishedText`);
   home formats numbers/dates locally via the locale system.
 - **Out of scope for now**: auth/session/cookie forwarding through the BFF —
   only unauthenticated endpoints are consumed. Needed before porting any

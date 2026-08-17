@@ -50,20 +50,27 @@ const dir = isRtl(locale) ? 'rtl' : 'ltr'
 </html>
 
 <style>
+  /* Home frame (Figma 4:11081): sidebar at x71, content column x369..1838. */
   .app-shell {
     display: grid;
-    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+    grid-template-columns: calc(var(--sidebar-width) + var(--sidebar-offset)) minmax(0, 1fr);
   }
 
   .app-main {
     min-width: 0;
     max-width: var(--content-max-width);
-    padding: 0 var(--space-5);
+    margin-inline: var(--content-gap) var(--page-margin);
   }
 
   @media (max-width: 900px) {
     .app-shell {
       display: block;
+    }
+
+    .app-main {
+      max-width: none;
+      margin-inline: 0;
+      padding-inline: var(--space-4);
     }
   }
 </style>

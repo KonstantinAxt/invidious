@@ -14,3 +14,7 @@ export const HomeActive = {}
 export const SearchActive = {
   args: { activeHref: '/search' },
 }
+
+export const TrendingActive = {
+  args: { activeHref: '/feed/trending' },
+}

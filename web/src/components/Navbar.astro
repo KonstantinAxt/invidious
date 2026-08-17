@@ -48,9 +48,8 @@ const [loginLabel, menuLabel] = await Promise.all([
 </script>
 
 <style>
-  /* Mobile-first: one row with the search pill centered in the free space
-     between the brand cluster and the icon cluster. The desktop step matches
-     the Figma nav: px-82 page margins, 727px search, 24px icon gaps. */
+  /* Mobile-first: one row, search pill auto-margined between the clusters.
+     Desktop step matches the Figma nav: px-82, 727px search, 24px gaps. */
   .navbar {
     position: sticky;
     top: 0;
@@ -144,10 +143,11 @@ const [loginLabel, menuLabel] = await Promise.all([
     }
   }
 
-  @media (min-width: 900px) {
+  /* 901px: never overlaps the mobile shell breakpoint (max-width: 900px). */
+  @media (min-width: 901px) {
     .navbar {
       gap: var(--space-6);
-      padding: 0 82px;
+      padding: 0 var(--page-margin);
     }
 
     .menu-btn {

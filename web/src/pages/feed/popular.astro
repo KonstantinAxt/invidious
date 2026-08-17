@@ -1,0 +1,17 @@
+---
+import FeedMenu from '../../components/FeedMenu.astro'
+import FeedSection from '../../components/FeedSection.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { resolveFeed } from '../../lib/feed'
+import { detectLocale, translate } from '../../lib/i18n'
+import { ROUTES } from '../../lib/routes'
+
+const locale = detectLocale(Astro.request.headers.get('accept-language'))
+const { titleKey, items } = await resolveFeed('popular')
+const title = await translate(locale, titleKey)
+---
+
+<BaseLayout title={title} locale={locale} activeHref={ROUTES.popularFeed}>
+  <FeedMenu locale={locale} />
+  <FeedSection title={title} locale={locale} items={items} />
+</BaseLayout>

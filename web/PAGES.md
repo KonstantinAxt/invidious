@@ -12,8 +12,8 @@ Legend:
 | Status | Route | Backing API |
 |--------|-------|-------------|
 | [x] | `/` (home) | `/api/v1/trending` + `/api/v1/popular` |
-| [ ] | `/feed/popular` | `/api/v1/popular` (aggregates channels users subscribe to — empty on a zero-user instance) |
-| [ ] | `/feed/trending` | `/api/v1/trending` |
+| [x] | `/feed/popular` | `/api/v1/popular` (aggregates channels users subscribe to — empty on a zero-user instance) |
+| [x] | `/feed/trending` | `/api/v1/trending` |
 | [x] | `/watch` | `/api/v1/videos/:id` + `/api/v1/comments/:id` |
 | [x] | `/search` (+ `/results` alias — alias not ported yet) | `/api/v1/search` (+ `/api/v1/search/suggestions`) |
 | [ ] | `/hashtag/:hashtag` | `/api/v1/hashtag/:hashtag` |

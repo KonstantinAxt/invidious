@@ -12,7 +12,8 @@ export function resolveGridItems(
 
   for (const item of items) {
     switch (item.type) {
-      case 'video': {
+      case 'video':
+      case 'shortVideo': {
         const thumb = pickThumbnail(item.videoThumbnails)
         const thumbs = item.authorThumbnails ?? []
         const avatar = thumbs.find((t) => t.width >= 76) ?? thumbs.at(-1)

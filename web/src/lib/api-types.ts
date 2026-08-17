@@ -42,6 +42,11 @@ export interface SearchVideoShape extends Video {
   premiereTimestamp?: number
 }
 
+/** Shorts in feeds (e.g. /api/v1/popular): same fields as a video. */
+export interface SearchShortVideoShape extends Video {
+  type: 'shortVideo'
+}
+
 export interface SearchChannelShape {
   type: 'channel'
   author: string
@@ -85,6 +90,7 @@ export interface SearchHashtagShape {
 
 export type SearchItemShape =
   | SearchVideoShape
+  | SearchShortVideoShape
   | SearchChannelShape
   | SearchPlaylistShape
   | SearchHashtagShape
@@ -92,7 +98,12 @@ export type SearchItemShape =
   | { type: 'parse-error'; errorMessage: string | null; errorBacktrace: string | null }
 
 export type GridItem =
-  | { kind: 'video'; video: SearchVideoShape; thumbnailSrc?: string; avatarSrc?: string }
+  | {
+      kind: 'video'
+      video: SearchVideoShape | SearchShortVideoShape
+      thumbnailSrc?: string
+      avatarSrc?: string
+    }
   | { kind: 'channel'; channel: SearchChannelShape; avatarSrc?: string }
   | { kind: 'playlist'; playlist: SearchPlaylistShape; thumbnailSrc?: string }
   | { kind: 'hashtag'; hashtag: SearchHashtagShape }

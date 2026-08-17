@@ -5,7 +5,8 @@ import type {
   CommunityResponse,
   PlaylistDetail,
   SearchItemShape,
-  Video,
+  SearchShortVideoShape,
+  SearchVideoShape,
   VideoDetail,
 } from './api-types'
 
@@ -25,6 +26,7 @@ export type {
   SearchHashtagShape,
   SearchItemShape,
   SearchPlaylistShape,
+  SearchShortVideoShape,
   SearchVideoShape,
   Video,
   VideoDetail,
@@ -65,8 +67,12 @@ export function resolveApiUrl(path: string): string {
   return `${API_BASE_URL}${path}`
 }
 
-export async function getTrending(): Promise<Video[]> {
-  return fetchJson<Video[]>('/api/v1/trending')
+export async function getTrending(): Promise<SearchVideoShape[]> {
+  return fetchJson<SearchVideoShape[]>('/api/v1/trending')
+}
+
+export async function getPopular(): Promise<SearchShortVideoShape[]> {
+  return fetchJson<SearchShortVideoShape[]>('/api/v1/popular')
 }
 
 export async function getVideo(id: string): Promise<VideoDetail> {
