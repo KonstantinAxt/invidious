@@ -22,6 +22,7 @@ export const OVERRIDES: Record<string, string> = {
   Home: 'Home',
   'Latest posts': 'Latest posts',
   Live: 'Live',
+  menu: 'Menu',
   Newest: 'Newest',
   'Play All': 'Play all',
   playlists: 'Playlists',

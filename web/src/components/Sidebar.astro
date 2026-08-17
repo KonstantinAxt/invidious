@@ -19,7 +19,7 @@ const resolved = items ?? defaultItems
 const labels = await Promise.all(resolved.map((item) => translate(locale, item.labelKey)))
 ---
 
-<nav class="sidebar">
+<nav class="sidebar" id="app-sidebar">
   <ul>
     {
       resolved.map((item, index) => (
@@ -98,6 +98,24 @@ const labels = await Promise.all(resolved.map((item) => translate(locale, item.l
   @media (max-width: 900px) {
     .sidebar {
       display: none;
+    }
+
+    /* Drawer opened by the navbar menu button (html.sidebar-open). */
+    :global(html.sidebar-open) .sidebar {
+      display: block;
+      /* align-self must not be `start` here: on a fixed element it collapses
+         the auto-height stretch (inset) to the content height in Chromium. */
+      align-self: auto;
+      position: fixed;
+      top: var(--navbar-height);
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 5;
+      width: auto;
+      height: auto;
+      padding: var(--space-4) var(--space-5);
+      background: var(--color-bg);
     }
   }
 </style>

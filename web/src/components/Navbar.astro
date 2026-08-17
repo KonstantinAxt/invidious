@@ -11,11 +11,23 @@ interface Props {
 }
 
 const { locale, query, showSearch = true } = Astro.props
-const loginLabel = await translate(locale, 'Log in')
+const [loginLabel, menuLabel] = await Promise.all([
+  translate(locale, 'Log in'),
+  translate(locale, 'menu'),
+])
 ---
 
 <header class="navbar">
   <div class="navbar-left">
+    <button
+      type="button"
+      class="menu-btn"
+      data-menu-toggle
+      aria-label={menuLabel}
+      aria-controls="app-sidebar"
+    >
+      <Icon name="menu" size={24} />
+    </button>
     <a class="brand" href="/">
       <span class="brand-mark"><Icon name="youtube" size={24} /></span>
       <span class="brand-name">Invidious</span>
@@ -28,16 +40,26 @@ const loginLabel = await translate(locale, 'Log in')
   </nav>
 </header>
 
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-menu-toggle]')
+  button?.addEventListener('click', () => {
+    document.documentElement.classList.toggle('sidebar-open')
+  })
+</script>
+
 <style>
+  /* Mobile-first: one row with the search pill centered in the free space
+     between the brand cluster and the icon cluster. The desktop step matches
+     the Figma nav: px-82 page margins, 727px search, 24px icon gaps. */
   .navbar {
     position: sticky;
     top: 0;
     z-index: 10;
     display: flex;
-    align-items: flex-start;
-    gap: var(--space-6);
+    align-items: center;
+    gap: var(--space-3);
     height: var(--navbar-height);
-    padding: 13px 82px 0;
+    padding: 0 var(--space-4);
     background: var(--color-bg);
   }
 
@@ -48,10 +70,30 @@ const loginLabel = await translate(locale, 'Log in')
     flex-shrink: 0;
   }
 
+  .menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+  }
+
+  .menu-btn:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+  }
+
   .brand {
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    flex-shrink: 0;
     color: var(--color-text);
   }
 
@@ -65,22 +107,55 @@ const loginLabel = await translate(locale, 'Log in')
   }
 
   .brand-name {
+    white-space: nowrap;
     font-weight: 500;
     font-size: 21px;
-    letter-spacing: 0;
   }
 
   .navbar-right {
     display: flex;
     align-items: center;
     gap: var(--space-4);
-    margin-left: auto;
-    padding-top: 5px;
     flex-shrink: 0;
   }
 
   .login {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-full);
+    background: var(--color-fill-button);
     color: var(--color-text);
+    font-size: var(--font-size-sm);
     font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .login:hover {
+    background: var(--color-surface-hover);
+    text-decoration: none;
+  }
+
+  /* Very narrow screens: logo glyph only, like the YouTube mobile app. */
+  @media (max-width: 479px) {
+    .brand-name {
+      display: none;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .navbar {
+      gap: var(--space-6);
+      padding: 0 82px;
+    }
+
+    .menu-btn {
+      display: none;
+    }
+
+    .navbar-right {
+      gap: 24px;
+    }
   }
 </style>
