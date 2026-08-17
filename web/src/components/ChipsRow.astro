@@ -1,41 +1,150 @@
 ---
+import { translate } from '../lib/i18n'
 import Icon from './icons/Icon.astro'
 
-interface Props {
-  chips: { label: string; value?: string; href?: string; selected?: boolean }[]
-  variant?: 'tag' | 'filter'
+interface Chip {
+  label?: string
+  value?: string
+  href?: string
+  selected?: boolean
+  /** Icon-only chip (Figma 71:33874): 48px wide, 24px glyph. */
+  icon?: string
+  /** Accent chip: pink tint + star (Figma "New Creators"). */
+  star?: boolean
+  /** TBD (phase 2): rendered muted with a "Coming soon" tooltip. */
+  tbd?: boolean
+  /** Functional icon chip (Home lane, Figma 71:33874): jumps back to the
+      start of the lane and re-selects the originally selected chip. */
+  jumpToStart?: boolean
 }
 
-const { chips, variant = 'tag' } = Astro.props
+interface Props {
+  chips: Chip[]
+  locale: string
+  /** 'category' = Home lane (Figma 4:11256): gap 12 + right fade/next affordance. */
+  variant?: 'tag' | 'filter' | 'category'
+}
+
+const { chips, locale, variant = 'tag' } = Astro.props
+const [soonLabel, nextLabel, prevLabel, backLabel] = await Promise.all([
+  translate(locale, 'Coming soon'),
+  translate(locale, 'Next'),
+  translate(locale, 'Previous'),
+  translate(locale, 'Back to start'),
+])
 ---
 
 <div class:list={['chips-row', `variant-${variant}`]}>
-  {chips.map((chip) => {
-    const content = (
+  <div class="chips-track" data-chips-track>
+    {
+      chips.map((chip) => {
+        const content =
+          chip.icon != null ? (
+            <Icon name={chip.icon} size={24} />
+          ) : (
+            <>
+              {chip.star && <Icon name="star" size={24} />}
+              {chip.label && <span class="label">{chip.label}</span>}
+              {chip.value && <span class="value">{chip.value}</span>}
+              {chip.value && <Icon name="chevron-down" size={24} />}
+            </>
+          )
+        const classes = [
+          'chip',
+          { selected: chip.selected, 'icon-chip': chip.icon != null, accent: chip.star, tbd: chip.tbd },
+        ]
+        const title = chip.tbd ? soonLabel : undefined
+        if (chip.jumpToStart) {
+          return (
+            <button type="button" class:list={classes} data-chip-start aria-label={backLabel} title={backLabel}>
+              {content}
+            </button>
+          )
+        }
+        return chip.href != null && !chip.tbd ? (
+          <a href={chip.href} class:list={classes} title={title}>{content}</a>
+        ) : (
+          <span class:list={classes} title={title}>{content}</span>
+        )
+      })
+    }
+  </div>
+  {
+    variant === 'category' && (
       <>
-        <span class="label">{chip.label}</span>
-        {chip.value && <span class="value">{chip.value}</span>}
-        {chip.value && <Icon name="chevron-down" size={24} />}
+        <button type="button" class="chips-prev is-hidden" data-chips-prev aria-label={prevLabel}>
+          <span class="chips-prev-icon">
+            <Icon name="play-triangle" size={28.8} />
+          </span>
+        </button>
+        <button type="button" class="chips-next is-hidden" data-chips-next aria-label={nextLabel}>
+          <Icon name="play-triangle" size={28.8} />
+        </button>
       </>
     )
-    return chip.href ? (
-      <a href={chip.href} class:list={['chip', { selected: chip.selected }]}>
-        {content}
-      </a>
-    ) : (
-      <span class:list={['chip', { selected: chip.selected }]}>{content}</span>
-    )
-  })}
+  }
 </div>
+
+<script>
+  const updateChipsArrow = (row: HTMLElement) => {
+    const track = row.querySelector<HTMLElement>('[data-chips-track]')
+    const prev = row.querySelector<HTMLButtonElement>('[data-chips-prev]')
+    const next = row.querySelector<HTMLButtonElement>('[data-chips-next]')
+    if (!track || !prev || !next) return
+    const max = track.scrollWidth - track.clientWidth
+    prev.classList.toggle('is-hidden', track.scrollLeft <= 0)
+    // Only visible when the chips exceed the right edge (and not at the end).
+    next.classList.toggle('is-hidden', max <= 0 || track.scrollLeft >= max - 1)
+  }
+
+  document.querySelectorAll<HTMLElement>('.chips-row').forEach((row) => {
+    const track = row.querySelector<HTMLElement>('[data-chips-track]')
+    const prev = row.querySelector<HTMLButtonElement>('[data-chips-prev]')
+    const next = row.querySelector<HTMLButtonElement>('[data-chips-next]')
+    const start = row.querySelector<HTMLButtonElement>('[data-chip-start]')
+    // The chip selected on load ("All"): the icon chip re-selects it.
+    const initialSelected = row.querySelector<HTMLElement>('.chip.selected')
+
+    track?.addEventListener('scroll', () => updateChipsArrow(row), { passive: true })
+    window.addEventListener('resize', () => updateChipsArrow(row))
+
+    prev?.addEventListener('click', () => {
+      track?.scrollBy({ left: -400, behavior: 'smooth' })
+    })
+    next?.addEventListener('click', () => {
+      track?.scrollBy({ left: 400, behavior: 'smooth' })
+    })
+    // Leading icon chip: jump back to the start and re-select "All".
+    start?.addEventListener('click', () => {
+      track?.scrollTo({ left: 0, behavior: 'smooth' })
+      row.querySelectorAll<HTMLElement>('.chip.selected').forEach((chip) => {
+        chip.classList.remove('selected')
+      })
+      initialSelected?.classList.add('selected')
+    })
+
+    updateChipsArrow(row)
+  })
+</script>
 
 <style>
   .chips-row {
+    position: relative;
+    height: 36px;
+  }
+
+  /* Figma 4:11253: h36 r8 chips, gap 12, horizontally scrollable, no scrollbar. */
+  .chips-track {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
     height: 36px;
     overflow-x: auto;
     scrollbar-width: none;
+  }
+
+  .chips-track::-webkit-scrollbar {
+    display: none;
   }
 
   .chip {
@@ -48,12 +157,19 @@ const { chips, variant = 'tag' } = Astro.props
     border-radius: var(--radius-md);
     background: var(--color-fill-chip);
     color: var(--color-text);
+    font-family: inherit;
     font-size: var(--font-size-sm);
     font-weight: 500;
     cursor: default;
   }
 
-  a.chip:hover {
+  a.chip,
+  button.chip {
+    cursor: pointer;
+  }
+
+  a.chip:hover,
+  button.chip:hover {
     background: var(--color-surface-hover);
     text-decoration: none;
   }
@@ -61,6 +177,35 @@ const { chips, variant = 'tag' } = Astro.props
   .chip.selected {
     background: #ffffff;
     color: #000000;
+  }
+
+  /* Selected stays white on hover (Figma selected = white bg, black text). */
+  a.chip.selected:hover {
+    background: #ffffff;
+  }
+
+  .chip.icon-chip {
+    justify-content: center;
+    width: 48px;
+    padding: 6px 12px;
+  }
+
+  .chip.accent {
+    padding: 6px 16px 6px 12px;
+    background: var(--color-accent-fill);
+  }
+
+  a.chip.accent:hover {
+    background: var(--color-accent-fill);
+  }
+
+  .chip.tbd {
+    color: var(--color-text-tertiary);
+  }
+
+  a.chip.tbd:hover,
+  .chip.tbd:hover {
+    background: var(--color-fill-chip);
   }
 
   .chip:has(.value) {
@@ -97,5 +242,53 @@ const { chips, variant = 'tag' } = Astro.props
     background: #ffffff;
     border-color: transparent;
     color: #000000;
+  }
+
+  /* Home lane: 27px to the feed (Figma: chips y81..117, feed y144). */
+  .variant-category {
+    margin-bottom: 27px;
+  }
+
+  /* Figma 4:11255: right fade (solid from 38.5%) + next affordance; the left
+     side is its mirror and appears once scrolled. */
+  .chips-next {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 61px;
+    height: 36px;
+    padding: 0 7.2px 0 0;
+    border: 0;
+    background: linear-gradient(270deg, var(--color-bg) 38.5%, transparent 100%);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .chips-prev {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    width: 61px;
+    height: 36px;
+    padding: 0 0 0 7.2px;
+    border: 0;
+    background: linear-gradient(90deg, var(--color-bg) 38.5%, transparent 100%);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .chips-prev-icon {
+    display: inline-flex;
+    transform: scaleX(-1);
+  }
+
+  .chips-prev.is-hidden,
+  .chips-next.is-hidden {
+    display: none;
   }
 </style>

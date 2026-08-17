@@ -9,12 +9,14 @@ import VideoCard from './cards/VideoCard.astro'
 interface Props {
   items: GridItem[]
   locale: string
+  /** Min card width for the auto-fill columns (Home grid uses 400 → 3 cols). */
+  minWidth?: number
 }
 
-const { items, locale } = Astro.props
+const { items, locale, minWidth } = Astro.props
 ---
 
-<div class="video-grid">
+<div class="video-grid" style={minWidth ? `--grid-min: ${minWidth}px` : undefined}>
   {items.map((item) => {
     switch (item.kind) {
       case 'video':
@@ -45,7 +47,7 @@ const { items, locale } = Astro.props
 <style>
   .video-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(331px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(var(--grid-min, 331px), 1fr));
     row-gap: 45px;
     column-gap: 19px;
   }

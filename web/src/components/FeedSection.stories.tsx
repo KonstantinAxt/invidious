@@ -13,6 +13,18 @@ export default {
 
 export const Default = {}
 
-export const Hero = {
-  args: { variant: 'hero', title: 'In Case You Missed' },
+export const Collapsible = {
+  args: { toggle: true },
+}
+
+export const Panel = {
+  args: { toggle: true, panel: true, title: 'In Case You Missed' },
+}
+
+export const WithIcon = {
+  args: { title: 'Shorts', icon: 'shorts' },
+}
+
+export const WithoutTitle = {
+  args: { title: undefined },
 }

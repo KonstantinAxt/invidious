@@ -46,6 +46,7 @@ const otherItems = resolveGridItems(
 
 <BaseLayout title={title} locale={locale} query={query} activeHref="/search">
   <ChipsRow
+    locale={locale}
     chips={[
       { label: typeLabel, value: allLabel },
       { label: dateLabel, value: anyTimeLabel },

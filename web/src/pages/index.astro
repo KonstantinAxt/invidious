@@ -1,35 +1,206 @@
 ---
 import ChipsRow from '../components/ChipsRow.astro'
 import FeedSection from '../components/FeedSection.astro'
+import Icon from '../components/icons/Icon.astro'
+import VideoGrid from '../components/VideoGrid.astro'
+import VideoRail from '../components/VideoRail.astro'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import { resolveFeed } from '../lib/feed'
 import { detectLocale, translate } from '../lib/i18n'
+import { ROUTES } from '../lib/routes'
 
 const locale = detectLocale(Astro.request.headers.get('accept-language'))
-const [title, allLabel, musicLabel, gamingLabel, moviesLabel, liveLabel, newsLabel] =
-  await Promise.all([
-    translate(locale, 'Trending'),
-    translate(locale, 'All'),
-    translate(locale, 'Music'),
-    translate(locale, 'Gaming'),
-    translate(locale, 'Movies'),
-    translate(locale, 'Live'),
-    translate(locale, 'News'),
-  ])
 
-const { items } = await resolveFeed('trending')
+const labels = await Promise.all([
+  translate(locale, 'Trending'),
+  translate(locale, 'All'),
+  translate(locale, 'Subscriptions'),
+  translate(locale, 'posts'),
+  translate(locale, 'Music'),
+  translate(locale, 'Tech'),
+  translate(locale, 'Design'),
+  translate(locale, 'Live'),
+  translate(locale, 'Playlists'),
+  translate(locale, 'Cats'),
+  translate(locale, 'Electronics'),
+  translate(locale, 'New Creators'),
+  translate(locale, 'Art'),
+  translate(locale, 'Tech News'),
+  translate(locale, 'Lofi beats'),
+  translate(locale, 'UI/UX Redesign'),
+  translate(locale, 'In Case You Missed'),
+  translate(locale, 'shorts'),
+  translate(locale, 'Not interested'),
+  translate(locale, 'Show me more'),
+  translate(locale, 'Gaming'),
+  translate(locale, 'Comedy'),
+  translate(locale, 'Next'),
+  translate(locale, 'Previous'),
+  translate(locale, 'Coming soon'),
+])
+const [
+  title,
+  allLabel,
+  subscriptionsLabel,
+  postsLabel,
+  musicLabel,
+  techLabel,
+  designLabel,
+  liveLabel,
+  playlistsLabel,
+  catsLabel,
+  electronicsLabel,
+  newCreatorsLabel,
+  artLabel,
+  techNewsLabel,
+  lofiLabel,
+  uiuxLabel,
+  icymLabel,
+  shortsLabel,
+  notInterestedLabel,
+  showMoreLabel,
+  gamingLabel,
+  comedyLabel,
+  nextLabel,
+  prevLabel,
+  soonLabel,
+] = labels
+
+const [{ items }, { items: popularItems }] = await Promise.all([
+  resolveFeed('trending'),
+  resolveFeed('popular'),
+])
+
+// Figma feed (92:14999): the rail takes the first 4, the grid the rest.
+const railItems = items.slice(0, 4)
+const gridItems = items.slice(4)
+const shortsItems = popularItems.slice(0, 6)
+
+const searchHref = (query: string) => `${ROUTES.search}?q=${encodeURIComponent(query)}`
+
+// Figma category lane (4:11256), in design order.
+const categoryChips = [
+  // Icon-only leading chip (Figma 71:33874): jumps back to the lane start
+  // and re-selects "All" (the design renders it as a cursor-pointer button).
+  { icon: 'feed', jumpToStart: true },
+  { label: allLabel, href: ROUTES.home, selected: true },
+  { label: subscriptionsLabel, tbd: true }, // TBD (phase 2, auth)
+  { label: postsLabel, tbd: true }, // TBD (phase 2): community posts, not a search category
+  { label: musicLabel, href: searchHref('Music') },
+  { label: techLabel, href: searchHref('Tech') },
+  { label: designLabel, href: searchHref('Design') },
+  { label: liveLabel, href: searchHref('Live') },
+  { label: playlistsLabel, href: searchHref('Playlists') },
+  { label: catsLabel, href: searchHref('Cats') },
+  { label: electronicsLabel, href: searchHref('Electronics') },
+  { label: newCreatorsLabel, href: searchHref('New Creators'), star: true },
+  { label: artLabel, href: searchHref('Art') },
+  { label: techNewsLabel, href: searchHref('Tech News') },
+  { label: lofiLabel, href: searchHref('Lofi beats') },
+  { label: uiuxLabel, href: searchHref('UI/UX Redesign') },
+]
 ---
 
-<BaseLayout title={title} locale={locale} activeHref="/">
-  <ChipsRow
-    chips={[
-      { label: allLabel, selected: true },
-      { label: musicLabel },
-      { label: gamingLabel },
-      { label: moviesLabel },
-      { label: liveLabel },
-      { label: newsLabel },
-    ]}
-  />
-  <FeedSection title={title} locale={locale} items={items} variant="hero" />
+<BaseLayout title={title} locale={locale} activeHref={ROUTES.home}>
+  <ChipsRow variant="category" locale={locale} chips={categoryChips} />
+
+  <FeedSection locale={locale} title={icymLabel} toggle panel>
+    <VideoRail
+      items={railItems}
+      locale={locale}
+      cardWidth={354}
+      nextLabel={nextLabel}
+      prevLabel={prevLabel}
+    />
+  </FeedSection>
+
+  {
+    gridItems.length > 0 && (
+      <FeedSection locale={locale}>
+        <VideoGrid items={gridItems} locale={locale} minWidth={400} />
+      </FeedSection>
+    )
+  }
+
+  <!-- TBD (phase 2, auth): "Suggestions based on recent watched" needs a user
+       and watch history; the design has no anonymous fallback. -->
+
+  {
+    shortsItems.length > 0 && (
+      <FeedSection locale={locale} icon="shorts" title={shortsLabel} panel>
+        <div slot="header-actions" class="pills">
+          <span class="pill pill--muted" title={soonLabel}>
+            <Icon name="dislike" size={22} />{notInterestedLabel}
+          </span>
+          <span class="pill pill--accent" title={soonLabel}>
+            <Icon name="plus" size={22} />{showMoreLabel}
+          </span>
+        </div>
+        <div class="shorts-chips">
+          <ChipsRow
+            variant="category"
+            locale={locale}
+            chips={[
+              { label: allLabel, href: ROUTES.home, selected: true },
+              { label: musicLabel, href: searchHref('Music') },
+              { label: gamingLabel, href: searchHref('Gaming') },
+              { label: comedyLabel, href: searchHref('Comedy') },
+            ]}
+          />
+        </div>
+        <VideoRail
+          variant="short"
+          items={shortsItems}
+          locale={locale}
+          cardWidth={231}
+          nextLabel={nextLabel}
+          prevLabel={prevLabel}
+        />
+      </FeedSection>
+    )
+  }
 </BaseLayout>
+
+<style>
+  /* Shorts category chips: inset 30px so they align with the panel content. */
+  .shorts-chips {
+    margin-inline-start: 30px;
+  }
+
+  /* Header pills ("Not interested" / "Show me more", Figma 92:14999).
+     TBD (phase 2): feed preferences — inert, "Coming soon" tooltip.
+     Page styles: slotted elements don't inherit FeedSection's scope. */
+  .pills {
+    display: flex;
+    gap: 8px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 24px 0 16px;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text);
+    cursor: default;
+  }
+
+  .pill--muted {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .pill--accent {
+    background: rgba(130, 191, 255, 0.21);
+  }
+
+  :root[data-theme='light'] .pill--muted {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  :root[data-theme='light'] .pill--accent {
+    background: rgba(100, 160, 255, 0.16);
+  }
+</style>

@@ -1,0 +1,196 @@
+---
+import type { GridItem } from '../lib/api-types'
+import ShortsCard from './cards/ShortsCard.astro'
+import VideoCard from './cards/VideoCard.astro'
+import Icon from './icons/Icon.astro'
+
+interface Props {
+  items: GridItem[]
+  locale: string
+  cardWidth: number
+  variant?: 'video' | 'short'
+  nextLabel: string
+  prevLabel: string
+}
+
+const { items, locale, cardWidth, variant = 'video', nextLabel, prevLabel } = Astro.props
+const gap = variant === 'short' ? 15 : 20
+// Figma 92:12833: floating hero panel (157px, gradient) + play button, sized
+// per variant — ICYM 384/button top 96, Shorts 549/button top 179.
+const panelOverhangTop = variant === 'short' ? -11 : -21
+const panelOverhangBottom = variant === 'short' ? 35 : 37
+const buttonTop = variant === 'short' ? 179 : 96
+---
+
+<div
+  class="rail"
+  data-rail
+  style={`--rail-card-width: ${cardWidth}px; --rail-gap: ${gap}px; --rail-panel-top: ${panelOverhangTop}px; --rail-panel-extra: ${Math.abs(panelOverhangTop) + panelOverhangBottom}px; --rail-btn-top: ${buttonTop}px`}
+>
+  <div class="rail-track" data-rail-track>
+    {
+      items.map((item) => (
+        <div class="rail-item">
+          {item.kind === 'video' && (variant === 'short' ? (
+            <ShortsCard video={item.video} locale={locale} thumbnailSrc={item.thumbnailSrc} />
+          ) : (
+            <VideoCard
+              video={item.video}
+              locale={locale}
+              thumbnailSrc={item.thumbnailSrc}
+              avatarSrc={item.avatarSrc}
+            />
+          ))}
+        </div>
+      ))
+    }
+  </div>
+  <div class="rail-panel-prev is-hidden">
+    <button type="button" class="rail-prev" data-rail-prev aria-label={prevLabel}>
+      <span class="rail-prev-icon">
+        <Icon name="play-triangle" size={28.8} />
+      </span>
+    </button>
+  </div>
+  <div class="rail-panel">
+    <button type="button" class="rail-next" data-rail-next aria-label={nextLabel}>
+      <Icon name="play-triangle" size={28.8} />
+    </button>
+  </div>
+</div>
+
+<script>
+  const updateRailArrows = (rail: HTMLElement) => {
+    const track = rail.querySelector<HTMLElement>('[data-rail-track]')
+    const panelPrev = rail.querySelector<HTMLElement>('.rail-panel-prev')
+    const panel = rail.querySelector<HTMLElement>('.rail-panel')
+    if (!track || !panelPrev || !panel) return
+    const max = track.scrollWidth - track.clientWidth
+    panelPrev.classList.toggle('is-hidden', track.scrollLeft <= 0)
+    // At the end (or with no overflow) the right affordance disappears.
+    panel.classList.toggle('is-hidden', max <= 0 || track.scrollLeft >= max - 1)
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-rail]').forEach((rail) => {
+    const track = rail.querySelector<HTMLElement>('[data-rail-track]')
+    const panelPrev = rail.querySelector<HTMLElement>('.rail-panel-prev')
+    const panel = rail.querySelector<HTMLElement>('.rail-panel')
+
+    track?.addEventListener('scroll', () => updateRailArrows(rail), { passive: true })
+    window.addEventListener('resize', () => updateRailArrows(rail))
+
+    const step = () => {
+      const card = track?.querySelector<HTMLElement>('.rail-item')
+      const gap = Number.parseFloat(getComputedStyle(rail).getPropertyValue('--rail-gap')) || 0
+      return (card?.offsetWidth ?? 0) + gap
+    }
+
+    // The whole gradient panel scrolls (the round button inside bubbles up).
+    panelPrev?.addEventListener('click', () => {
+      track?.scrollBy({ left: -step(), behavior: 'smooth' })
+    })
+    panel?.addEventListener('click', () => {
+      track?.scrollBy({ left: step(), behavior: 'smooth' })
+    })
+
+    updateRailArrows(rail)
+  })
+</script>
+
+<style>
+  /* Figma rail (92:14999): inset 30px left, bleeds to the content edge,
+     fixed-width cards, floating hero panel with a 48px play button. */
+  .rail {
+    position: relative;
+    margin-inline-start: 30px;
+  }
+
+  .rail-track {
+    display: flex;
+    gap: var(--rail-gap);
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* End spacing: at full scroll the last card keeps 30px to the edge
+       (mirrors the 30px inset on the left). */
+    padding-inline-end: 30px;
+  }
+
+  .rail-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rail-item {
+    flex-shrink: 0;
+    width: var(--rail-card-width);
+  }
+
+  /* Figma 92:12833: 157px gradient panel at the right edge fading into the
+     cards; the whole panel area is clickable and scrolls the rail. */
+  .rail-panel {
+    position: absolute;
+    top: var(--rail-panel-top);
+    right: 0;
+    width: 157px;
+    height: calc(100% + var(--rail-panel-extra));
+    background: var(--color-fill-hero);
+    cursor: pointer;
+  }
+
+  .rail-next {
+    position: absolute;
+    top: var(--rail-btn-top);
+    left: 87px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    border-radius: 28.8px;
+    background: var(--color-hero-button);
+    color: var(--color-text);
+    cursor: pointer;
+    box-shadow: 0px 4.8px 2.4px rgba(0, 0, 0, 0.1), 0px 0px 4.8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Slider behavior: mirrored gradient panel on the left; the whole panel
+     area is clickable and scrolls back. */
+  .rail-panel-prev {
+    position: absolute;
+    top: var(--rail-panel-top);
+    left: 0;
+    width: 157px;
+    height: calc(100% + var(--rail-panel-extra));
+    background: var(--color-fill-hero-reverse);
+    cursor: pointer;
+  }
+
+  .rail-prev {
+    position: absolute;
+    top: var(--rail-btn-top);
+    left: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    border-radius: 28.8px;
+    background: var(--color-hero-button);
+    color: var(--color-text);
+    cursor: pointer;
+    box-shadow: 0px 4.8px 2.4px rgba(0, 0, 0, 0.1), 0px 0px 4.8px rgba(0, 0, 0, 0.1);
+  }
+
+  .rail-prev-icon {
+    display: inline-flex;
+    transform: scaleX(-1);
+  }
+
+  .rail-panel-prev.is-hidden,
+  .rail-panel.is-hidden {
+    display: none;
+  }
+</style>

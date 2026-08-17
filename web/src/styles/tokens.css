@@ -30,7 +30,18 @@
   --color-fill-button: rgba(255, 255, 255, 0.05);
   --color-fill-subscribed: rgba(255, 255, 255, 0.08);
   --color-fill-chip: rgba(255, 255, 255, 0.14);
+  /* ICYM panel (Figma 92:12742) + rail hero panel (Figma 92:12833). */
   --color-fill-hero: linear-gradient(268.59deg, rgb(37, 34, 34) 2.83%, rgba(37, 34, 34, 0) 97.17%);
+  --color-fill-hero-reverse: linear-gradient(
+    88.59deg,
+    rgb(37, 34, 34) 2.83%,
+    rgba(37, 34, 34, 0) 97.17%
+  );
+  --color-fill-hero-panel: rgba(196, 228, 255, 0.08);
+  --color-hero-button: #3f3f3f;
+  --color-avatar-bg: rgba(0, 0, 0, 0.1);
+  /* Empty card slots in the design render as near-black plates (#010101). */
+  --color-thumb-bg: #010101;
   --color-bg-video: #555555;
   --color-live-gradient: linear-gradient(90deg, #ff0033, #f50057);
 
@@ -106,6 +117,15 @@
     rgb(226, 226, 226) 2.83%,
     rgba(226, 226, 226, 0) 97.17%
   );
+  --color-fill-hero-reverse: linear-gradient(
+    88.59deg,
+    rgb(226, 226, 226) 2.83%,
+    rgba(226, 226, 226, 0) 97.17%
+  );
+  --color-fill-hero-panel: rgba(196, 228, 255, 0.35);
+  --color-hero-button: #dddddd;
+  --color-avatar-bg: rgba(0, 0, 0, 0.06);
+  --color-thumb-bg: #e8e8e8;
   --color-bg-video: #555555;
   --color-live-gradient: linear-gradient(90deg, #cc0033, #d10050);
 }

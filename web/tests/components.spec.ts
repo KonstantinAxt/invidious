@@ -20,11 +20,17 @@ test('renders navbar and video grid from the Invidious API', async ({ page, requ
   await expect(page.locator('#searchbox')).toBeVisible()
   await expect(page.locator('.navbar a[href="/"]')).toBeVisible()
 
-  const grid = page.locator('.video-grid')
-  await expect(grid).toBeVisible()
-  await expect(grid.locator('article')).toHaveCount(videos.length)
+  // Home feed: first 4 videos in the rail, the rest in the grid section.
+  const railCount = Math.min(4, videos.length)
+  await expect(page.locator('[data-rail]').first().locator('.rail-item')).toHaveCount(railCount)
 
-  const firstCard = grid.locator('article').first()
+  const grid = page.locator('.video-grid')
+  if (videos.length > railCount) {
+    await expect(grid).toBeVisible()
+    await expect(grid.locator('article')).toHaveCount(videos.length - railCount)
+  }
+
+  const firstCard = page.locator('.rail-item article').first()
   await expect(firstCard.locator('a[href^="/watch?v="]').first()).toBeVisible()
   await expect(firstCard.locator('a[href^="/channel/"]').first()).toBeVisible()
 

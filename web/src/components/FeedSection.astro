@@ -1,23 +1,77 @@
 ---
 import type { GridItem } from '../lib/api-types'
+import { translate } from '../lib/i18n'
+import Icon from './icons/Icon.astro'
 import VideoGrid from './VideoGrid.astro'
 
 interface Props {
-  title: string
   locale: string
-  items: GridItem[]
-  variant?: 'default' | 'hero'
+  title?: string
+  /** Leading glyph in the title cluster (e.g. the Shorts icon). */
+  icon?: string
+  /** Double-chevron collapse/expand toggle in the header (Figma 92:14999). */
+  toggle?: boolean
+  /** Blue-tinted panel around the section (Figma 92:12742, "In Case You Missed"). */
+  panel?: boolean
+  items?: GridItem[]
 }
 
-const { title, locale, items, variant = 'default' } = Astro.props
+const { locale, title, icon, toggle = false, panel = false, items } = Astro.props
+const hasHeader = Boolean(title || icon) || Astro.slots.has('header-actions')
+const [showLessLabel, showMoreLabel] = await Promise.all([
+  translate(locale, 'Show less'),
+  translate(locale, 'Show more'),
+])
 ---
 
-<section class:list={['feed-section', `variant-${variant}`]}>
-  <h2 class="section-title">{title}</h2>
-  <VideoGrid items={items} locale={locale} />
+<section class:list={['feed-section', { panel }]}>
+  {
+    hasHeader && (
+      <header class="section-header">
+        <h2 class="section-title">
+          {icon && <span class="section-icon"><Icon name={icon} size={24} /></span>}
+          {title}
+        </h2>
+        {toggle && (
+          <button
+            type="button"
+            class="section-toggle"
+            data-section-toggle
+            aria-expanded="true"
+            aria-label={showLessLabel}
+            data-label-expanded={showLessLabel}
+            data-label-collapsed={showMoreLabel}
+          >
+            <Icon name="chevron-expand" size={24} />
+          </button>
+        )}
+        <slot name="header-actions" />
+      </header>
+    )
+  }
+  <div class="section-body">
+    {items && <VideoGrid items={items} locale={locale} />}
+    <slot />
+  </div>
 </section>
 
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-section-toggle]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const section = button.closest<HTMLElement>('.feed-section')
+      const collapsed = section?.classList.toggle('collapsed') ?? false
+      button.setAttribute('aria-expanded', String(!collapsed))
+      button.setAttribute(
+        'aria-label',
+        collapsed ? (button.dataset.labelCollapsed ?? '') : (button.dataset.labelExpanded ?? ''),
+      )
+    })
+  })
+</script>
+
 <style>
+  /* Figma feed section (92:14999): 30px header inset, 30px header-to-content
+     gap, 40px between sections. */
   .feed-section {
     display: flex;
     flex-direction: column;
@@ -25,17 +79,58 @@ const { title, locale, items, variant = 'default' } = Astro.props
     margin-bottom: 40px;
   }
 
+  /* Figma 92:12742: the "In Case You Missed" section sits on a blue-tinted
+     panel (bg rgba(196,228,255,0.08), radius 20, 30px padding). */
+  .feed-section.panel {
+    padding: 30px 0;
+    border-radius: var(--radius-panel);
+    background: var(--color-fill-hero-panel);
+    overflow: clip;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    padding-inline: 30px;
+  }
+
   .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin: 0;
     font-family: var(--font-condensed);
     font-size: var(--font-size-xl);
     font-weight: 500;
+    line-height: 28px;
     color: var(--color-text);
   }
 
-  .variant-hero {
-    padding: 30px;
-    border-radius: var(--radius-panel);
-    background: var(--color-fill-hero);
+  .section-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+
+  .section-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+  }
+
+  .section-toggle:hover {
+    color: var(--color-text);
+  }
+
+  .feed-section.collapsed .section-body {
+    display: none;
   }
 </style>

@@ -4,6 +4,7 @@ export default {
   title: 'Components/ChipsRow',
   component: ChipsRow,
   args: {
+    locale: 'en-US',
     chips: [
       { label: 'All', selected: true },
       { label: 'Music' },
@@ -26,6 +27,20 @@ export const Filters = {
       { label: 'Duration:' },
       { label: 'Features:' },
       { label: 'Sort by:' },
+    ],
+  },
+}
+
+export const Category = {
+  args: {
+    variant: 'category',
+    chips: [
+      { icon: 'feed', jumpToStart: true },
+      { label: 'All', href: '/', selected: true },
+      { label: 'Subscriptions', tbd: true },
+      { label: 'Music', href: '/search?q=Music' },
+      { label: 'Tech', href: '/search?q=Tech' },
+      { label: 'New Creators', href: '/search?q=New+Creators', star: true },
     ],
   },
 }
