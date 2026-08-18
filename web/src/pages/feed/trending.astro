@@ -1,17 +1,190 @@
 ---
-import FeedMenu from '../../components/FeedMenu.astro'
-import FeedSection from '../../components/FeedSection.astro'
+import HeroPanel from '../../components/HeroPanel.astro'
+import Icon from '../../components/icons/Icon.astro'
+import TabsRow from '../../components/TabsRow.astro'
+import VideoGrid from '../../components/VideoGrid.astro'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import { resolveFeed } from '../../lib/feed'
-import { detectLocale, translate } from '../../lib/i18n'
+import { detectLocale, regionFromLocale, translate } from '../../lib/i18n'
 import { ROUTES } from '../../lib/routes'
 
 const locale = detectLocale(Astro.request.headers.get('accept-language'))
-const { titleKey, items } = await resolveFeed('trending')
-const title = await translate(locale, titleKey)
+// Region follows the browser language (like Invidious's own UI); the API
+// otherwise defaults to US, which serves global live streams.
+const region = regionFromLocale(locale)
+
+// Figma Explore (92:2418): the tabs switch the trending type. Invidious only
+// serves "default" and "gaming" — the remaining design tabs are TBD.
+const type = Astro.url.searchParams.get('type') === 'gaming' ? 'gaming' : undefined
+
+// "View all" is the complete feed: YouTube serves the whole trending tab in
+// one page (verified — the browse response has no usable continuation), so
+// there is nothing to paginate.
+const viewAll = Astro.url.searchParams.get('view') === 'all'
+
+const labels = await Promise.all([
+  translate(locale, 'Trending'),
+  translate(locale, 'Now'),
+  translate(locale, 'Music'),
+  translate(locale, 'Gaming'),
+  translate(locale, 'Movies'),
+  translate(locale, 'Shorts'),
+  translate(locale, 'View all'),
+  translate(locale, 'Next section'),
+])
+const [
+  trendingLabel,
+  nowLabel,
+  musicLabel,
+  gamingLabel,
+  moviesLabel,
+  shortsLabel,
+  viewAllLabel,
+  nextSectionLabel,
+] = labels
+
+const [{ items }, gaming] = await Promise.all([
+  resolveFeed('trending', type, region),
+  type == null && !viewAll ? resolveFeed('trending', 'gaming', region) : Promise.resolve(null),
+])
+
+// Figma 273:8764: sections show max two rows of cards. Columns vary with
+// the viewport, so a buffer is rendered server-side and a client script
+// clamps the visible cards to 2 rows × the actual column count. The
+// view-all page renders everything instead.
+const sectionItems = viewAll ? items : items.slice(0, 12)
+const gamingItems = gaming && !viewAll ? gaming.items.slice(0, 12) : []
+
+const tabs = [
+  { label: nowLabel, href: ROUTES.trendingFeed, selected: type == null },
+  { label: musicLabel, tbd: true },
+  { label: gamingLabel, href: `${ROUTES.trendingFeed}?type=gaming`, selected: type === 'gaming' },
+  { label: moviesLabel, tbd: true },
+  { label: shortsLabel, tbd: true },
+]
 ---
 
-<BaseLayout title={title} locale={locale} activeHref={ROUTES.trendingFeed}>
-  <FeedMenu locale={locale} />
-  <FeedSection title={title} locale={locale} items={items} />
+<BaseLayout title={trendingLabel} locale={locale} activeHref={ROUTES.trendingFeed}>
+  <!-- Figma 273:8750: gradient icon box + 28px title + "View all" pill. -->
+  <header class="explore-header">
+    <div class="explore-icon">
+      <Icon name="trending" size={24} />
+    </div>
+    <h1>{trendingLabel}</h1>
+    <a class="view-all" href={`${ROUTES.trendingFeed}?view=all`}>{viewAllLabel}</a>
+  </header>
+
+  <TabsRow locale={locale} tabs={tabs} />
+
+  {
+    viewAll ? (
+      <div class="explore-grid">
+        <VideoGrid items={sectionItems} locale={locale} minWidth={341} />
+      </div>
+    ) : (
+      <>
+        <section class="explore-section" data-hero-section>
+          <div class="explore-grid">
+            <VideoGrid items={sectionItems} locale={locale} minWidth={341} />
+            <HeroPanel label={nextSectionLabel} />
+          </div>
+        </section>
+
+        {
+          gamingItems.length > 0 && (
+            <section class="explore-section" data-hero-section>
+              <header class="explore-header">
+                <div class="explore-icon">
+                  <Icon name="trending" size={24} />
+                </div>
+                <h2>{gamingLabel}</h2>
+                <a class="view-all" href={`${ROUTES.trendingFeed}?type=gaming&view=all`}>{viewAllLabel}</a>
+              </header>
+              <div class="explore-grid">
+                <VideoGrid items={gamingItems} locale={locale} minWidth={341} />
+                <HeroPanel label={nextSectionLabel} />
+              </div>
+            </section>
+          )
+        }
+      </>
+    )
+  }
 </BaseLayout>
+
+<style>
+  /* Figma Explore (92:2418): 4-col 341px grids, 24px inset, 27px vertical gaps. */
+  .explore-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-inline: 24px;
+  }
+
+  .explore-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+    border-radius: var(--radius-full);
+    background: var(--color-live-gradient);
+    color: #ffffff;
+  }
+
+  .explore-header h1,
+  .explore-header h2 {
+    margin: 0;
+    color: var(--color-text);
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 44px;
+    letter-spacing: -0.28px;
+  }
+
+  .view-all {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    margin-inline-start: auto;
+    padding: 0 24px;
+    border-radius: 23.148px;
+    background: var(--color-fill-button);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+  }
+
+  .view-all:hover {
+    background: var(--color-surface-hover);
+    text-decoration: none;
+  }
+
+  .explore-grid {
+    position: relative;
+    margin-top: 27px;
+    padding-inline: 24px;
+  }
+
+  .explore-section + .explore-section {
+    margin-top: 45px;
+  }
+</style>
+
+<script>
+  // Cap every section at two rows: hide cards past 2 × the visible column
+  // count, recomputed on resize (columns depend on the viewport width).
+  const capSections = () => {
+    document.querySelectorAll<HTMLElement>('[data-hero-section]').forEach((section) => {
+      const grid = section.querySelector<HTMLElement>('.video-grid')
+      if (!grid) return
+      const articles = [...grid.querySelectorAll<HTMLElement>('article')]
+      const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length
+      articles.forEach((article, index) => {
+        article.style.display = index < columns * 2 ? '' : 'none'
+      })
+    })
+  }
+  capSections()
+  window.addEventListener('resize', capSections)
+</script>

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-test('renders the popular feed with the sidebar active state', async ({ page, request }) => {
+test('renders the Subs-designed popular feed', async ({ page, request }) => {
   const apiBase = process.env.INVIDIOUS_API_BASE_URL
   if (!apiBase) throw new Error('INVIDIOUS_API_BASE_URL must be set (copy .env.example to .env)')
 
@@ -10,15 +10,23 @@ test('renders the popular feed with the sidebar active state', async ({ page, re
 
   await page.goto('/feed/popular')
 
-  await expect(page.locator('.sidebar-item.active')).toHaveAttribute('href', '/feed/popular')
-  await expect(page.locator('.section-title')).toBeVisible()
+  // Sidebar: the design has no Popular entry — Explore stays active.
+  await expect(page.locator('.sidebar-item.active span')).toHaveText('Explore')
 
-  // Popular can legitimately be empty on a zero-user instance — the grid only
-  // renders visible rows when the API has data.
+  // Figma 97:3987 toolbar: view mode, type filters, sort, view toggles.
+  const toolbar = page.locator('.popular-toolbar')
+  await expect(toolbar.locator('.chip.selected').nth(0)).toHaveText('All')
+  await expect(toolbar.locator('.chip.selected').nth(1)).toHaveText('Newest')
+  await expect(toolbar.locator('.chip.tbd').first()).toHaveAttribute('title', /Coming soon/)
+
+  // Popular can legitimately be empty on a zero-user instance.
   const first = videos[0]
   if (first) {
-    await expect(page.locator('.video-grid')).toBeVisible()
+    // Date-divided timeline rows (Figma 97:4251).
+    await expect(page.locator('.date-header').first()).toBeVisible()
     await expect(page.getByText(first.title).first()).toBeVisible()
     await expect(page.locator(`a[href="/watch?v=${first.videoId}"]`).first()).toBeVisible()
+  } else {
+    await expect(page.locator('.popular-empty')).toBeVisible()
   }
 })

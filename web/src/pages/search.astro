@@ -1,5 +1,6 @@
 ---
 import ChipsRow from '../components/ChipsRow.astro'
+import Pagination from '../components/Pagination.astro'
 import SearchResultRow from '../components/SearchResultRow.astro'
 import VideoGrid from '../components/VideoGrid.astro'
 import BaseLayout from '../layouts/BaseLayout.astro'
@@ -24,7 +25,18 @@ const [allLabel, anyTimeLabel, anyLabel, relevanceLabel, typeLabel, dateLabel, d
     translate(locale, 'Sort by:'),
   ])
 
-const items: SearchItemShape[] = query ? await searchVideos(query) : []
+// Invidious search pages: 20 items per page, numeric prev/next nav.
+const page = Math.max(1, Math.floor(Number(Astro.url.searchParams.get('page')) || 1))
+const items: SearchItemShape[] = query ? await searchVideos(query, page) : []
+
+// YouTube occasionally returns short pages (e.g. 19/20 for "Ice Cube") even
+// though a next page exists, so a full page alone can't decide hasNext —
+// probe the next page when the current one came back short. The extra fetch
+// is cached (60s TTL), so clicking Next hits the cache.
+let hasNext = items.length >= 20
+if (query && !hasNext && items.length > 0) {
+  hasNext = (await searchVideos(query, page + 1)).length > 0
+}
 
 const videoRows = items
   .filter((item): item is SearchVideoShape => item.type === 'video')
@@ -65,6 +77,14 @@ const otherItems = resolveGridItems(
     ))}
     {otherItems.length > 0 && <VideoGrid items={otherItems} locale={locale} />}
   </div>
+  {query && (
+    <Pagination
+      locale={locale}
+      baseUrl={`/search?q=${encodeURIComponent(query)}`}
+      currentPage={page}
+      hasNext={hasNext}
+    />
+  )}
 </BaseLayout>
 
 <style>

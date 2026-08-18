@@ -24,6 +24,14 @@ export const Continuation = {
   },
 }
 
+export const ContinuationSecondPage = {
+  args: {
+    currentPage: undefined,
+    continuationToken: '4qmFsgJAEhhVQzQ2QTQ0OUU5RkQ1NTc3NzhGMkExQzAx',
+    firstPageHref: '/feed/trending?view=all',
+  },
+}
+
 export const LastPage = {
   args: { currentPage: 5, hasNext: false },
 }

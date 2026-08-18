@@ -20,17 +20,19 @@ interface Props {
 const { locale, activeHref = '/', groups } = Astro.props
 
 const defaultGroups: SidebarItem[][] = [
+  // Figma 92:6115: the design's exact navigation structure.
   [
     { labelKey: 'Home', icon: 'home', href: ROUTES.home },
-    { labelKey: 'Search', icon: 'search', href: ROUTES.search },
-    { labelKey: 'Trending', icon: 'trending', href: ROUTES.trendingFeed },
-    { labelKey: 'Popular', icon: 'eye', href: ROUTES.popularFeed },
+    // Explore is the design's trending page; it stays active on Popular too.
+    { labelKey: 'Explore', icon: 'compass', href: ROUTES.trendingFeed },
+    { labelKey: 'Shorts', icon: 'shorts', tbd: true },
+    { labelKey: 'TV Mode', icon: 'tv', tbd: true },
   ],
   // TBD (phase 2, auth): add the href once the pages are ported.
   [
     { labelKey: 'History', icon: 'history', tbd: true },
-    { labelKey: 'Watch later', icon: 'clock', tbd: true },
-    { labelKey: 'Liked videos', icon: 'heart', tbd: true },
+    { labelKey: 'Watch Later', icon: 'clock', tbd: true },
+    { labelKey: 'Liked Videos', icon: 'heart', tbd: true },
     { labelKey: 'Playlists', icon: 'list', tbd: true },
   ],
   // TBD (phase 2, auth), like the design's third group.
@@ -58,7 +60,11 @@ const [soonLabel] = await Promise.all([
         <ul>
           {
             group.map((item) => {
-              const active = item.href != null && item.href === activeHref
+              const active =
+                item.href != null &&
+                (item.href === activeHref ||
+                  // The design has no Popular entry: it lives under Explore.
+                  (item.href === ROUTES.trendingFeed && activeHref === ROUTES.popularFeed))
               return (
                 <li>
                   {item.href != null ? (

@@ -1,17 +1,188 @@
 ---
-import FeedMenu from '../../components/FeedMenu.astro'
-import FeedSection from '../../components/FeedSection.astro'
+import ChipsRow from '../../components/ChipsRow.astro'
+import VideoGrid from '../../components/VideoGrid.astro'
 import BaseLayout from '../../layouts/BaseLayout.astro'
+import type { GridItem } from '../../lib/api-types'
 import { resolveFeed } from '../../lib/feed'
 import { detectLocale, translate } from '../../lib/i18n'
 import { ROUTES } from '../../lib/routes'
 
 const locale = detectLocale(Astro.request.headers.get('accept-language'))
-const { titleKey, items } = await resolveFeed('popular')
-const title = await translate(locale, titleKey)
+const { items } = await resolveFeed('popular')
+
+// Figma Subs (96:3679) toolbar: type filters + sort, applied server-side so
+// the chips stay plain links. Popular is the instance's recently published
+// videos from subscribed channels (empty on a zero-user instance).
+const filter = Astro.url.searchParams.get('filter')
+const oldestFirst = Astro.url.searchParams.get('sort') === 'oldest'
+
+const matchesFilter = (item: GridItem) => {
+  if (item.kind !== 'video') return false
+  const video = item.video
+  switch (filter) {
+    case 'live':
+      return video.liveNow
+    case 'shorts':
+      return !video.liveNow && video.lengthSeconds > 0 && video.lengthSeconds <= 60
+    case 'videos':
+      return !video.liveNow && video.lengthSeconds > 60
+    default:
+      return true
+  }
+}
+
+// The API returns newest-first; Oldest just reverses it.
+const filtered = items.filter(matchesFilter)
+if (oldestFirst) filtered.reverse()
+
+const labels = await Promise.all([
+  translate(locale, 'Popular'),
+  translate(locale, 'View as:'),
+  translate(locale, 'Timeline'),
+  translate(locale, 'All'),
+  translate(locale, 'Videos'),
+  translate(locale, 'posts'),
+  translate(locale, 'Live'),
+  translate(locale, 'Shorts'),
+  translate(locale, 'Newest'),
+  translate(locale, 'Oldest'),
+  translate(locale, 'Date Range:'),
+  translate(locale, 'Today'),
+  translate(locale, 'Yesterday'),
+  translate(locale, 'No popular videos'),
+])
+const [
+  popularLabel,
+  viewAsLabel,
+  timelineLabel,
+  allLabel,
+  videosLabel,
+  postsLabel,
+  liveLabel,
+  shortsLabel,
+  newestLabel,
+  oldestLabel,
+  dateRangeLabel,
+  todayLabel,
+  yesterdayLabel,
+  emptyLabel,
+] = labels
+
+// Figma Subs rows: date-divided timeline ("Today - 15 Dec 2024").
+const dayStart = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
+const now = new Date()
+const todayStart = dayStart(now)
+const yesterdayStart = todayStart - 86_400_000
+
+const groups: { key: number; label: string; items: GridItem[] }[] = []
+for (const item of filtered) {
+  if (item.kind !== 'video') continue
+  const date = new Date(item.video.published * 1000)
+  const start = dayStart(date)
+  const dateLabel = date.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })
+  let label: string
+  if (start === todayStart) label = `${todayLabel} - ${dateLabel}`
+  else if (start === yesterdayStart) label = `${yesterdayLabel} - ${dateLabel}`
+  else label = dateLabel
+  const last = groups.at(-1)
+  if (last && last.key === start) last.items.push(item)
+  else groups.push({ key: start, label, items: [item] })
+}
+
+const popularHref = (params: string) => `${ROUTES.popularFeed}?${params}`
 ---
 
-<BaseLayout title={title} locale={locale} activeHref={ROUTES.popularFeed}>
-  <FeedMenu locale={locale} />
-  <FeedSection title={title} locale={locale} items={items} />
+<BaseLayout title={popularLabel} locale={locale} activeHref={ROUTES.popularFeed}>
+  <!-- Figma 97:3987 (Subs): view mode, type filters, sort and view toggles. -->
+  <div class="popular-toolbar">
+    <ChipsRow
+      locale={locale}
+      chips={[{ label: viewAsLabel, value: timelineLabel, tbd: true }]}
+    />
+    <span class="toolbar-divider" />
+    <ChipsRow
+      locale={locale}
+      chips={[
+        { label: allLabel, href: ROUTES.popularFeed, selected: filter == null },
+        { label: videosLabel, href: popularHref('filter=videos'), selected: filter === 'videos' },
+        { label: postsLabel, tbd: true }, // TBD (phase 2): community posts
+        { label: liveLabel, href: popularHref('filter=live'), selected: filter === 'live' },
+        { label: shortsLabel, href: popularHref('filter=shorts'), selected: filter === 'shorts' },
+      ]}
+    />
+    <span class="toolbar-divider" />
+    <ChipsRow
+      locale={locale}
+      chips={[
+        { label: newestLabel, href: ROUTES.popularFeed, selected: !oldestFirst },
+        { label: oldestLabel, href: popularHref('sort=oldest'), selected: oldestFirst },
+        { label: dateRangeLabel, value: allLabel, tbd: true },
+      ]}
+    />
+    <span class="toolbar-divider" />
+    <ChipsRow
+      locale={locale}
+      chips={[
+        { icon: 'grid', selected: true },
+        { icon: 'list', tbd: true },
+      ]}
+    />
+  </div>
+
+  {
+    groups.length > 0 ? (
+      <div class="popular-feed">
+        {groups.map((group) => (
+          <section class="date-group">
+            <h2 class="date-header">{group.label}</h2>
+            <VideoGrid items={group.items} locale={locale} minWidth={341} />
+          </section>
+        ))}
+      </div>
+    ) : (
+      <p class="popular-empty">{emptyLabel}</p>
+    )
+  }
 </BaseLayout>
+
+<style>
+  .popular-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 27px;
+  }
+
+  /* Figma 97:3988: hairline separators between toolbar groups. */
+  .toolbar-divider {
+    flex-shrink: 0;
+    width: 1px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  :root[data-theme='light'] .toolbar-divider {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .popular-feed {
+    padding-inline: 24px;
+  }
+
+  .date-group + .date-group {
+    margin-top: 45px;
+  }
+
+  /* Figma 97:4251: 16px regular date headers. */
+  .date-header {
+    margin: 0 0 19px;
+    color: var(--color-text);
+    font-size: 16px;
+    font-weight: 400;
+  }
+
+  .popular-empty {
+    margin-inline: 24px;
+    color: var(--color-text-secondary);
+  }
+</style>

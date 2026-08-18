@@ -21,3 +21,33 @@ test('renders the playlist page from the Invidious API', async ({ page, request 
   await expect(page.locator('.item-row')).toHaveCount(detail.videos.length)
   await expect(page.locator('.playlist-header .actions .pill').first()).toBeVisible()
 })
+
+test('playlist pagination: page param drives the rows and nav', async ({ page, request }) => {
+  const apiBase = process.env.INVIDIOUS_API_BASE_URL
+  if (!apiBase) throw new Error('INVIDIOUS_API_BASE_URL must be set (copy .env.example to .env)')
+
+  const searchRes = await request.get(`${apiBase}/api/v1/search?q=redesign`)
+  expect(searchRes.ok()).toBeTruthy()
+  const items = (await searchRes.json()) as { type: string; playlistId: string }[]
+  const playlist = items.find((item) => item.type === 'playlist')
+  if (!playlist) return
+
+  const detail = (await (
+    await request.get(`${apiBase}/api/v1/playlists/${playlist.playlistId}`)
+  ).json()) as { videoCount: number }
+  if (detail.videoCount <= 100) return // single page — nothing to assert
+
+  await page.goto(`/playlist?list=${playlist.playlistId}&page=2`)
+
+  const nav = page.locator('.pagination')
+  await expect(nav).toBeVisible()
+  await expect(nav.locator('a', { hasText: 'Previous page' })).toHaveAttribute(
+    'href',
+    `/playlist?list=${playlist.playlistId}&page=1`,
+  )
+
+  const page2 = (await (
+    await request.get(`${apiBase}/api/v1/playlists/${playlist.playlistId}?page=2`)
+  ).json()) as { videos: unknown[] }
+  await expect(page.locator('.item-row')).toHaveCount(page2.videos.length)
+})

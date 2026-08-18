@@ -6,10 +6,13 @@ import VideoGrid from '../components/VideoGrid.astro'
 import VideoRail from '../components/VideoRail.astro'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import { resolveFeed } from '../lib/feed'
-import { detectLocale, translate } from '../lib/i18n'
+import { detectLocale, regionFromLocale, translate } from '../lib/i18n'
 import { ROUTES } from '../lib/routes'
 
 const locale = detectLocale(Astro.request.headers.get('accept-language'))
+// Localize the trending feed like Invidious's own UI: region follows the
+// browser language, otherwise the API defaults to US (global live streams).
+const region = regionFromLocale(locale)
 
 const labels = await Promise.all([
   translate(locale, 'Trending'),
@@ -67,7 +70,7 @@ const [
 ] = labels
 
 const [{ items }, { items: popularItems }] = await Promise.all([
-  resolveFeed('trending'),
+  resolveFeed('trending', undefined, region),
   resolveFeed('popular'),
 ])
 

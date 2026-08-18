@@ -1,0 +1,99 @@
+---
+import { translate } from '../lib/i18n'
+
+interface Tab {
+  label: string
+  href?: string
+  selected?: boolean
+  /** TBD (phase 2): rendered muted with a "Coming soon" tooltip. */
+  tbd?: boolean
+}
+
+interface Props {
+  tabs: Tab[]
+  locale: string
+}
+
+const { tabs, locale } = Astro.props
+const [soonLabel] = await Promise.all([translate(locale, 'Coming soon')])
+---
+
+<div class="tabs-row">
+  <div class="tabs-track">
+    {
+      tabs.map((tab) =>
+        tab.href != null && !tab.tbd ? (
+          <a href={tab.href} class:list={['tab', { selected: tab.selected }]}>
+            {tab.label}
+          </a>
+        ) : (
+          <span
+            class:list={['tab', { selected: tab.selected, tbd: tab.tbd }]}
+            title={tab.tbd ? soonLabel : undefined}
+          >
+            {tab.label}
+          </span>
+        ),
+      )
+    }
+  </div>
+  <div class="tabs-divider" />
+</div>
+
+<style>
+  /* Figma 273:8756 (Explore): 48px primary tabs + hairline divider;
+     selected = white text + 3px live-gradient underline. */
+  .tabs-row {
+    margin-top: 27px;
+  }
+
+  .tabs-track {
+    display: flex;
+    gap: 23px;
+    padding-inline: 24px;
+  }
+
+  .tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 48px;
+    padding-inline: 16px;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: 0.1px;
+  }
+
+  a.tab:hover {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .tab.selected {
+    color: var(--color-text);
+  }
+
+  .tab.selected::after {
+    content: '';
+    position: absolute;
+    right: 2px;
+    bottom: 0;
+    left: 2px;
+    height: 3px;
+    border-radius: 100px 100px 0 0;
+    background: var(--color-live-gradient);
+  }
+
+  .tab.tbd {
+    color: var(--color-text-tertiary);
+    cursor: default;
+  }
+
+  .tabs-divider {
+    height: 1px;
+    margin-inline: 24px;
+    background: var(--color-divider);
+  }
+</style>

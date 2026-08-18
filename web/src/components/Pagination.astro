@@ -4,16 +4,21 @@ import Icon from './icons/Icon.astro'
 
 interface Props {
   locale: string
+  /** Base URL with any query params the next/prev links must preserve.
+      The component appends `&page=N` or `&continuation=…` to it. */
   baseUrl: string
   currentPage?: number
   hasNext: boolean
   continuationToken?: string
+  /** Continuation (ctoken) mode only: link back to the first page. */
+  firstPageHref?: string
 }
 
-const { locale, baseUrl, currentPage, hasNext, continuationToken } = Astro.props
+const { locale, baseUrl, currentPage, hasNext, continuationToken, firstPageHref } = Astro.props
 const rtl = isRtl(locale)
 
-const [prevPage, nextPage] = await Promise.all([
+const [firstPage, prevPage, nextPage] = await Promise.all([
+  translate(locale, 'First page'),
   translate(locale, 'Previous page'),
   translate(locale, 'Next page'),
 ])
@@ -26,7 +31,7 @@ if (hasNext) {
   if (currentPage !== undefined) {
     nextHref = `${baseUrl}&page=${currentPage + 1}`
   } else if (continuationToken) {
-    nextHref = `${baseUrl}&continuation=${continuationToken}`
+    nextHref = `${baseUrl}&continuation=${encodeURIComponent(continuationToken)}`
   }
 }
 
@@ -34,22 +39,26 @@ const backArrow = rtl ? 'arrow-right' : 'arrow-left'
 const forwardArrow = rtl ? 'arrow-left' : 'arrow-right'
 ---
 
-<nav class="pagination">
-  <div class="cluster">
-    {prevHref ? (
-      <a href={prevHref}><Icon name={backArrow} size={16} />{prevPage}</a>
-    ) : (
-      <span class="disabled"><Icon name={backArrow} size={16} />{prevPage}</span>
-    )}
-  </div>
-  <div class="cluster">
-    {nextHref ? (
-      <a href={nextHref}>{nextPage}<Icon name={forwardArrow} size={16} /></a>
-    ) : (
-      <span class="disabled">{nextPage}<Icon name={forwardArrow} size={16} /></span>
-    )}
-  </div>
-</nav>
+{
+  // Unavailable directions are hidden, not disabled (Invidious's classic
+  // nav does the same); the whole nav disappears when nothing is clickable.
+  (firstPageHref || prevHref || nextHref) && (
+    <nav class="pagination">
+      <div class="cluster">
+        {firstPageHref ? (
+          <a href={firstPageHref}><Icon name={backArrow} size={16} />{firstPage}</a>
+        ) : prevHref ? (
+          <a href={prevHref}><Icon name={backArrow} size={16} />{prevPage}</a>
+        ) : null}
+      </div>
+      <div class="cluster">
+        {nextHref ? (
+          <a href={nextHref}>{nextPage}<Icon name={forwardArrow} size={16} /></a>
+        ) : null}
+      </div>
+    </nav>
+  )
+}
 
 <style>
   .pagination {
@@ -59,8 +68,7 @@ const forwardArrow = rtl ? 'arrow-left' : 'arrow-right'
     margin: var(--space-4) 0;
   }
 
-  .cluster a,
-  .cluster .disabled {
+  .cluster a {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
@@ -74,9 +82,5 @@ const forwardArrow = rtl ? 'arrow-left' : 'arrow-right'
   .cluster a:hover {
     background: var(--color-surface-hover);
     text-decoration: none;
-  }
-
-  .cluster .disabled {
-    opacity: 0.5;
   }
 </style>

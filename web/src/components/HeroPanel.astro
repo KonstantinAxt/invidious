@@ -1,0 +1,62 @@
+---
+import Icon from './icons/Icon.astro'
+
+interface Props {
+  /** Accessible label for the round button ("Next section"). */
+  label: string
+}
+
+const { label } = Astro.props
+---
+
+<div class="hero-panel" data-hero-panel>
+  <button type="button" class="hero-btn" aria-label={label}>
+    <Icon name="play-triangle" size={28.8} />
+  </button>
+</div>
+
+<script>
+  // Floating hero affordance (Figma 273:8936): every section shows its
+  // button; clicking scrolls to the next section, the last one is a no-op.
+  document.querySelectorAll<HTMLElement>('[data-hero-panel]').forEach((panel) => {
+    const section = panel.closest<HTMLElement>('[data-hero-section]')
+    const next = section?.nextElementSibling
+    const nextSection =
+      next instanceof HTMLElement && next.matches('[data-hero-section]') ? next : null
+    panel.addEventListener('click', () => nextSection?.scrollIntoView({ behavior: 'smooth' }))
+  })
+</script>
+
+<style>
+  /* Figma 273:8936: lone 48px button, 24px from the right edge, vertically
+     centered on the grid. */
+  .hero-panel {
+    position: absolute;
+    top: 50%;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+
+  .hero-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    border-radius: 28.8px;
+    background: var(--color-hero-button);
+    color: var(--color-text);
+    cursor: pointer;
+    box-shadow: 0px 4.8px 2.4px rgba(0, 0, 0, 0.1), 0px 0px 4.8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Figma 273:9025: the chevron sits optically right+down of center. */
+  .hero-btn :global(svg) {
+    transform: translate(1.4px, 0.4px);
+  }
+</style>

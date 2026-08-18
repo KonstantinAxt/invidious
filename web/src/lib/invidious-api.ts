@@ -67,8 +67,12 @@ export function resolveApiUrl(path: string): string {
   return `${API_BASE_URL}${path}`
 }
 
-export async function getTrending(): Promise<SearchVideoShape[]> {
-  return fetchJson<SearchVideoShape[]>('/api/v1/trending')
+export async function getTrending(type?: string, region?: string): Promise<SearchVideoShape[]> {
+  const params = new URLSearchParams()
+  if (type) params.set('type', type)
+  if (region) params.set('region', region)
+  const query = params.size > 0 ? `?${params.toString()}` : ''
+  return fetchJson<SearchVideoShape[]>(`/api/v1/trending${query}`)
 }
 
 export async function getPopular(): Promise<SearchShortVideoShape[]> {
@@ -96,22 +100,26 @@ export async function getComments(id: string): Promise<CommentsResponse> {
   }
 }
 
-export async function searchVideos(query: string): Promise<SearchItemShape[]> {
-  return fetchJson<SearchItemShape[]>(`/api/v1/search?q=${encodeURIComponent(query)}`)
+export async function searchVideos(query: string, page = 1): Promise<SearchItemShape[]> {
+  return fetchJson<SearchItemShape[]>(`/api/v1/search?q=${encodeURIComponent(query)}&page=${page}`)
 }
 
 export async function getChannel(ucid: string): Promise<ChannelDetail> {
   return fetchJson<ChannelDetail>(`/api/v1/channels/${ucid}`)
 }
 
-export async function getChannelVideos(ucid: string): Promise<ChannelVideosResponse> {
-  return fetchJson<ChannelVideosResponse>(`/api/v1/channels/${ucid}/videos`)
+export async function getChannelVideos(
+  ucid: string,
+  continuation?: string,
+): Promise<ChannelVideosResponse> {
+  const query = continuation ? `?continuation=${encodeURIComponent(continuation)}` : ''
+  return fetchJson<ChannelVideosResponse>(`/api/v1/channels/${ucid}/videos${query}`)
 }
 
 export async function getCommunity(ucid: string): Promise<CommunityResponse> {
   return fetchJson<CommunityResponse>(`/api/v1/channels/${ucid}/community`)
 }
 
-export async function getPlaylist(plid: string): Promise<PlaylistDetail> {
-  return fetchJson<PlaylistDetail>(`/api/v1/playlists/${plid}`)
+export async function getPlaylist(plid: string, page = 1): Promise<PlaylistDetail> {
+  return fetchJson<PlaylistDetail>(`/api/v1/playlists/${plid}?page=${page}`)
 }

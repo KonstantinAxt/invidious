@@ -1,5 +1,6 @@
 ---
 import Icon from '../components/icons/Icon.astro'
+import Pagination from '../components/Pagination.astro'
 import PlaylistItemRow from '../components/PlaylistItemRow.astro'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import { formatDuration } from '../lib/format'
@@ -22,7 +23,10 @@ const [playAllLabel, shareLabel, videosLabel, viewsLabel, durationLabel] = await
   translate(locale, 'duration'),
 ])
 
-const playlist = await getPlaylist(plid)
+// Invidious playlists: 100 videos per page, numeric prev/next nav.
+const page = Math.max(1, Math.floor(Number(Astro.url.searchParams.get('page')) || 1))
+const playlist = await getPlaylist(plid, page)
+const pageCount = Math.max(1, Math.ceil(playlist.videoCount / 100))
 const totalSeconds = playlist.videos.reduce((sum, video) => sum + video.lengthSeconds, 0)
 
 const rows = playlist.videos.map((video) => ({
@@ -75,6 +79,12 @@ const rows = playlist.videos.map((video) => ({
       <PlaylistItemRow video={row.video} thumbnailSrc={row.thumbnailSrc} locale={locale} />
     ))}
   </div>
+  <Pagination
+    locale={locale}
+    baseUrl={`/playlist?list=${plid}`}
+    currentPage={page}
+    hasNext={page < pageCount}
+  />
 </BaseLayout>
 
 <style>

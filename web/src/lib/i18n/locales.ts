@@ -53,3 +53,24 @@ export function detectLocale(acceptLanguage: string | null | undefined): string 
 
   return DEFAULT_LOCALE
 }
+
+/** YouTube trending region code for a BCP 47 locale tag ("de" → "DE",
+    "en-US" → "US"); language-only tags fall back to a matching country. */
+export function regionFromLocale(locale: string): string {
+  const parts = locale.split('-')
+  const country = parts[1]
+  if (country) return country.toUpperCase()
+
+  const language = (parts[0] ?? '').toLowerCase()
+  const languageRegions: Record<string, string> = {
+    ar: 'SA',
+    de: 'DE',
+    en: 'US',
+    es: 'ES',
+    fr: 'FR',
+    it: 'IT',
+    ja: 'JP',
+    pt: 'BR',
+  }
+  return languageRegions[language] ?? 'US'
+}

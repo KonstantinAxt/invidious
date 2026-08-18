@@ -1,6 +1,7 @@
 ---
 import ChannelHeader from '../../components/ChannelHeader.astro'
 import FeedSection from '../../components/FeedSection.astro'
+import Pagination from '../../components/Pagination.astro'
 import PostCard from '../../components/PostCard.astro'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import type { SearchVideoShape } from '../../lib/api-types'
@@ -16,7 +17,12 @@ if (!ucid) {
 const locale = detectLocale(Astro.request.headers.get('accept-language'))
 
 const channel = await getChannel(ucid)
-const { videos } = await getChannelVideos(ucid)
+// Invidious channel tabs page via continuation token (~60 videos/fetch).
+const continuation = Astro.url.searchParams.get('continuation')
+const { videos, continuation: nextContinuation } = await getChannelVideos(
+  ucid,
+  continuation ?? undefined,
+)
 const community = await getCommunity(ucid).catch(() => null)
 
 const subCountText = await translateCount(locale, 'generic_subscribers_count', channel.subCount, 'short')
@@ -71,6 +77,13 @@ const tabs = [
     </section>
   )}
   <FeedSection title={popularLabel} locale={locale} items={items} />
+  <Pagination
+    locale={locale}
+    baseUrl={`/channel/${ucid}`}
+    hasNext={!!nextContinuation}
+    continuationToken={nextContinuation ?? undefined}
+    firstPageHref={continuation ? `/channel/${ucid}` : undefined}
+  />
 </BaseLayout>
 
 <style>
